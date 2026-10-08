@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transfer History</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: system-ui, -apple-system, sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+    
+    body { 
+      background: #0b0517; 
+      color: #fff; 
+      min-height: 100vh; 
+      padding: 20px 15px 100px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+    }
+
+    .container { width: 100%; max-width: 500px; }
+
+    .page { width: 100%; display: block; }
+    .hidden { display: none !important; }
+
+    /* Header Bar */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      background: #23123e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      border: 1px solid #361b5f;
+      cursor: pointer;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #b185ff;
+    }
+
+    /* Status Filters & Refresh Bar */
+    .filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .status-filters {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      background: #180a32;
+      color: #836e9d;
+      border: 1px solid #281248;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active {
+      background: #a855f7;
+      color: #fff;
+      border-color: #a855f7;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+    }
+
+    .refresh-btn {
+      background: #180a32;
+      border: 1px solid #281248;
+      color: #d1c4e9;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Search Box */
+    .search-box {
+      margin-bottom: 20px;
+    }
+    .search-input {
+      width: 100%;
+      background: #120824;
+      border: 1px solid #281248;
+      border-radius: 14px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-input::placeholder { color: #5a4b73; }
+
+    /* History Cards List */
+    .history-list { display: flex; flex-direction: column; gap: 12px; min-height: 250px; }
+    
+    .history-card {
+      background: #130826;
+      border: 1px solid #251243;
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .history-card:active { transform: scale(0.98); }
+    .history-card:hover { border-color: #a855f7; }
+
+    .card-left { display: flex; align-items: center; gap: 12px; }
+    
+    .tx-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .tx-icon.outflow {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+    .tx-icon.inflow {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+    }
+
+    .card-info { display: flex; flex-direction: column; gap: 3px; }
+    .item-title { font-size: 14px; font-weight: bold; color: #f0eafc; }
+    .date-text { font-size: 11px; color: #706280; }
+    
+    .amount-text { font-size: 14px; font-weight: bold; white-space: nowrap; }
+    .amount-text.outflow { color: #f87171; }
+    .amount-text.inflow { color: #4ade80; }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      color: #7d6b91;
+      margin-top: 80px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    /* Details Page Styles */
+    .details-body {
+      background: #130826;
+      border: 1px solid #251243;
+      border-radius: 20px;
+      padding: 25px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4ade80;
+      font-size: 26px;
+      margin-bottom: 16px;
+    }
+
+    .status-text {
+      font-size: 15px;
+      color: #d1c4e9;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .main-amount {
+      font-size: 24px;
+      font-weight: bold;
+      color: #a855f7;
+      margin-bottom: 25px;
+    }
+
+    .detail-table {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #251243;
+      padding-bottom: 10px;
+    }
+
+    .detail-label { color: #706280; font-size: 11px; text-transform: uppercase; }
+    .detail-val { color: #f0eafc; font-weight: 600; text-align: right; }
+
+    .receipt-btn {
+      width: 100%;
+      padding: 12px;
+      background: #a855f7;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+    }
+    .receipt-btn:active { transform: scale(0.98); }
+
+    /* Curved Bottom Navigation Bar */
+    .bottom-nav-container {
+      position: fixed;
+      bottom: 15px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 9999;
+      padding: 0 10px;
+    }
+
+    .bottom-nav {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      height: 65px;
+      background: rgba(18, 8, 36, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 35px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    .nav-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #706280;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 600;
+      flex: 1;
+      gap: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link i { font-size: 18px; }
+    .nav-link.active { color: #c084fc; }
+    .nav-link.active i { color: #a855f7; transform: translateY(-2px); text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); }
+
+    .center-btn-wrapper { position: relative; top: -20px; flex: 1; display: flex; justify-content: center; }
+    .center-btn {
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg, #ff2a5f, #ff003c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(255, 0, 60, 0.6);
+      border: 4px solid #0b0517;
+      text-decoration: none;
+      color: #fff;
+      font-size: 22px;
+    }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <!-- PAGE 1: HISTORY LIST -->
+  <div id="historyPage" class="page">
+    <!-- Header -->
+    <div class="header">
+      <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+      <div class="page-title">Transfer History</div>
+      <div style="width: 40px;"></div>
+    </div>
+
+    <!-- Status Filters & Refresh Bar -->
+    <div class="filter-bar">
+      <div class="status-filters">
+        <button class="filter-btn active" onclick="filterList('all', this)">All</button>
+        <button class="filter-btn" onclick="filterList('inflow', this)">Inflow</button>
+        <button class="filter-btn" onclick="filterList('outflow', this)">Outflow</button>
+      </div>
+      <button class="refresh-btn" onclick="loadHistory()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-box">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search Title, TX No or Target..." onkeyup="loadHistory()">
+    </div>
+
+    <!-- Transactions List Container -->
+    <div class="history-list" id="historyContainer"></div>
+  </div>
+
+  <!-- PAGE 2: TRANSACTION DETAILS -->
+  <div id="detailsPage" class="page hidden">
+    <!-- Header -->
+    <div class="header">
+      <button class="back-btn" onclick="hideDetails()"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="page-title">Transaction Details</div>
+      <div style="width: 40px;"></div>
+    </div>
+
+    <div class="details-body">
+      <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+      <div class="status-text">Transfer Successful</div>
+      <div class="main-amount" id="detAmount">-0.00 MMK</div>
+
+      <div class="detail-table">
+        <div class="detail-row">
+          <span class="detail-label">Transaction Time</span>
+          <span class="detail-val" id="detTime">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Transaction No.</span>
+          <span class="detail-val" id="detTxNo">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Transfer To / From</span>
+          <span class="detail-val" id="detTarget">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Account ID</span>
+          <span class="detail-val" id="detReceiverId" style="color: #c084fc;">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Note</span>
+          <span class="detail-val" id="detNote">-</span>
+        </div>
+      </div>
+
+      <button class="receipt-btn" onclick="hideDetails()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation Bar -->
+<div class="bottom-nav-container">
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="order.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i><span>Orders</span></a>
+    <div class="center-btn-wrapper">
+      <a href="topup.html" class="center-btn"><i class="fa-solid fa-wallet"></i></a>
+    </div>
+    <a href="transfer.html" class="nav-link active"><i class="fa-solid fa-paper-plane"></i><span>Transfer</span></a>
+    <a href="login.html" class="nav-link"><i class="fa-solid fa-user"></i><span>Account</span></a>
+  </nav>
+</div>
+
+<script>
+  let currentFilter = 'all';
+
+  function getCurrentUser() {
+    try {
+      return JSON.parse(localStorage.getItem('atsx_current_user') || "null");
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function loadHistory() {
+    const currentUser = getCurrentUser();
+    const container = document.getElementById('historyContainer');
+    const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+    const allHistory = JSON.parse(localStorage.getItem('atsx_topup_history') || "[]");
+
+    if (!currentUser) {
+      container.innerHTML = '<div class="empty-state">ကျေးဇူးပြု၍ အကောင့် Login အရင်ဝင်ပါ</div>';
+      return;
+    }
+
+    const currentId = String(currentUser.id || '');
+    const currentPhone = String(currentUser.phone || '');
+
+    const userHistory = allHistory.filter(item => {
+      const itemUserId = String(item.userId || '');
+      return (currentId && itemUserId === currentId) || (currentPhone && itemUserId === currentPhone);
+    });
+
+    if (userHistory.length === 0) {
+      container.innerHTML = '<div class="empty-state">ငွေလွှဲပြောင်းမှု မှတ်တမ်း မရှိသေးပါ</div>';
+      return;
+    }
+
+    const filtered = userHistory.filter(item => {
+      const matchType = (currentFilter === 'all') || (item.type === currentFilter);
+      const title = (item.title || '').toLowerCase();
+      const txNo = (item.txNo || '').toLowerCase();
+      const target = (item.target || '').toLowerCase();
+      const matchSearch = title.includes(searchText) || txNo.includes(searchText) || target.includes(searchText);
+      return matchType && matchSearch;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty-state">ရှာဖွေမှုနှင့် ကိုက်ညီသော မှတ်တမ်း မရှိပါ</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+
+    filtered.reverse().forEach(item => {
+      const isOutflow = item.type === 'outflow';
+      const amountClass = isOutflow ? 'outflow' : 'inflow';
+      const iconClass = isOutflow ? 'fa-arrow-up-right-from-square' : 'fa-arrow-down-left-same';
+
+      let accId = item.receiverId || '';
+      if (!accId && item.target && item.target.includes('(')) {
+        const match = item.target.match(/\(([^)]+)\)/);
+        if (match) accId = match[1];
+      }
+
+      const safeTitle = (item.title || 'Transfer').replace(/'/g, "\\'");
+      const safeAmount = (item.amount || '0 MMK').replace(/'/g, "\\'");
+      const safeTime = (item.time || '-').replace(/'/g, "\\'");
+      const safeTxNo = (item.txNo || '-').replace(/'/g, "\\'");
+      const safeTarget = (item.target || '-').replace(/\s*\([^)]*\)/, '').replace(/'/g, "\\'");
+      const safeAccId = (accId || '-').replace(/'/g, "\\'");
+      const safeNote = (item.note || '-').replace(/'/g, "\\'");
+
+      const card = document.createElement('div');
+      card.className = 'history-card';
+      card.onclick = () => showDetails(safeTitle, safeAmount, safeTime, safeTxNo, safeTarget, safeAccId, safeNote);
+
+      card.innerHTML = `
+        <div class="card-left">
+          <div class="tx-icon ${item.type}">
+            <i class="fa-solid ${iconClass}"></i>
+          </div>
+          <div class="card-info">
+            <div class="item-title">${item.title}</div>
+            <div class="date-text">${item.time}</div>
+          </div>
+        </div>
+        <div class="amount-text ${amountClass}">${item.amount}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function filterList(type, element) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    loadHistory();
+  }
+
+  function showDetails(title, amount, time, txNo, target, receiverId, note) {
+    document.getElementById('detAmount').innerText = amount;
+    document.getElementById('detTime').innerText = time;
+    document.getElementById('detTxNo').innerText = txNo;
+    document.getElementById('detTarget').innerText = target;
+    document.getElementById('detReceiverId').innerText = receiverId;
+    document.getElementById('detNote').innerText = note;
+
+    document.getElementById('historyPage').classList.add('hidden');
+    document.getElementById('detailsPage').classList.remove('hidden');
+  }
+
+  function hideDetails() {
+    document.getElementById('detailsPage').classList.add('hidden');
+    document.getElementById('historyPage').classList.remove('hidden');
+  }
+
+  window.addEventListener('DOMContentLoaded', loadHistory);
+</script>
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

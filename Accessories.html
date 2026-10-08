@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AtsX Store - Shop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* General Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: #08051f;
+    color: #fff;
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 16px;
+    padding-bottom: 100px;
+}
+
+.container {
+    max-width: 430px;
+    margin: auto;
+}
+
+/* Header with Back Button */
+.store-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 16px;
+    padding: 8px 0;
+}
+
+.back-btn {
+    position: absolute;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    background: #1c1047;
+    border: 1px solid #2f195f;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.back-btn:active {
+    transform: scale(0.9);
+}
+
+.store-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #a78bfa;
+}
+
+/* Products Grid Layout */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+/* Product Card */
+.product-card {
+    background: #130a33;
+    border: 1px solid #2f195f;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-decoration: none;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.product-card:active {
+    transform: scale(0.96);
+    border-color: #8b5cf6;
+}
+
+.product-img-box {
+    width: 100%;
+    height: 95px;
+    background: #1c1047;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+.product-name {
+    font-size: 10px;
+    color: #d1d5db;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 6px;
+    line-height: 1.2;
+}
+
+.product-price {
+    font-size: 11px;
+    font-weight: bold;
+    color: #fb923c;
+}
+
+/* Bottom Navigation */
+.bottom-nav-container { 
+    position: fixed; 
+    bottom: 15px; 
+    left: 0; 
+    width: 100%; 
+    display: flex; 
+    justify-content: center; 
+    z-index: 9999; 
+    padding: 0 12px; 
+    pointer-events: none; 
+}
+
+.bottom-nav { 
+    pointer-events: auto; 
+    position: relative; 
+    width: 100%; 
+    max-width: 430px; 
+    height: 68px; 
+    background: rgba(20,10,35,.95); 
+    backdrop-filter: blur(16px); 
+    -webkit-backdrop-filter: blur(16px); 
+    border: 1px solid rgba(168,85,247,.35); 
+    border-radius: 35px; 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    padding: 0 8px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,.8),0 0 15px rgba(168,85,247,.2); 
+}
+
+.nav-link { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    color: #9ca3af; 
+    text-decoration: none; 
+    font-size: 10px; 
+    font-weight: 600; 
+    flex: 1; 
+    transition: all .3s ease; 
+    gap: 3px; 
+}
+
+.nav-link i { font-size: 18px; }
+.nav-link.active { color: #c084fc; }
+.nav-link.active i { color: #a855f7; text-shadow: 0 0 10px rgba(168,85,247,.8); }
+
+.center-btn-wrapper { 
+    position: relative; 
+    top: -22px; 
+    flex: 1; 
+    display: flex; 
+    justify-content: center; 
+}
+
+.center-btn { 
+    width: 62px; 
+    height: 62px; 
+    background: linear-gradient(135deg,#a855f7,#6366f1); 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    box-shadow: 0 0 20px rgba(168,85,247,.8); 
+    border: 4px solid #0d0614; 
+    text-decoration: none; 
+    overflow: hidden; 
+}
+
+.center-btn img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    border-radius: 50%; 
+}
+</style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="store-header">
+        <a href="index.html" class="back-btn">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <div class="store-title">AtsX Store</div>
+    </div>
+
+    <!-- Products Grid (30 Items Will Render Here) -->
+    <div class="products-grid" id="productsGrid"></div>
+</div>
+
+<!-- Bottom Navigation Bar -->
+<div class="bottom-nav-container">
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i><span>Home</span></a>
+        <a href="order.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i><span>Orders</span></a>
+        <div class="center-btn-wrapper">
+            <a href="topup.html" class="center-btn">
+                <img src="Wallet.jpg" alt="Wallet" onerror="this.style.display='none'; this.parentNode.innerHTML='<i class=\'fa-solid fa-wallet\' style=\'color:#fff;font-size:22px;\'></i>';">
+            </a>
+        </div>
+        <a href="transfer.html" class="nav-link"><i class="fa-solid fa-paper-plane"></i><span>Transfer</span></a>
+        <a href="login.html" class="nav-link"><i class="fa-solid fa-user"></i><span>Account</span></a>
+    </nav>
+</div>
+
+<script>
+// ပစ္စည်း ၃၀ ရဲ့ အချက်အလက်များ
+const products = [
+    { id: 1, name: "Cross-border new fashion simple...", price: "MMK 19,200", img: "https://picsum.photos/200?random=1" },
+    { id: 2, name: "Men's cargo shorts, elastic, solid color...", price: "MMK 14,500", img: "https://picsum.photos/200?random=2" },
+    { id: 3, name: "2025 Summer New Men's Linen Collar...", price: "MMK 18,432", img: "https://picsum.photos/200?random=3" },
+    { id: 4, name: "2025 New Summer Men's Ice-Silk Cool...", price: "MMK 27,580", img: "https://picsum.photos/200?random=4" },
+    { id: 5, name: "Short-sleeved M-shirt Summer...", price: "MMK 22,964", img: "https://picsum.photos/200?random=5" },
+    { id: 6, name: "New Chinese Style National Style...", price: "MMK 21,428", img: "https://picsum.photos/200?random=6" },
+    { id: 7, name: "Casual Slim Fit Cotton T-Shirt...", price: "MMK 16,000", img: "https://picsum.photos/200?random=7" },
+    { id: 8, name: "Breathable Running Sport Shoes...", price: "MMK 35,000", img: "https://picsum.photos/200?random=8" },
+    { id: 9, name: "Classic Denim Jacket Outerwear...", price: "MMK 42,000", img: "https://picsum.photos/200?random=9" },
+    { id: 10, name: "Minimalist Leather Wrist Watch...", price: "MMK 28,500", img: "https://picsum.photos/200?random=10" },
+    { id: 11, name: "Streetwear Oversized Hoodie...", price: "MMK 25,000", img: "https://picsum.photos/200?random=11" },
+    { id: 12, name: "Stylish Polarized Sunglasses...", price: "MMK 12,000", img: "https://picsum.photos/200?random=12" },
+    { id: 13, name: "Waterproof Travel Backpack...", price: "MMK 31,200", img: "https://picsum.photos/200?random=13" },
+    { id: 14, name: "Comfortable Sweatpants Elastic...", price: "MMK 18,000", img: "https://picsum.photos/200?random=14" },
+    { id: 15, name: "Vintage Canvas Shoulder Bag...", price: "MMK 22,500", img: "https://picsum.photos/200?random=15" },
+    { id: 16, name: "Wireless Bluetooth Earbuds...", price: "MMK 29,900", img: "https://picsum.photos/200?random=16" },
+    { id: 17, name: "Summer Beach Printed Shirt...", price: "MMK 17,500", img: "https://picsum.photos/200?random=17" },
+    { id: 18, name: "Unisex Cotton Baseball Cap...", price: "MMK 8,500", img: "https://picsum.photos/200?random=18" },
+    { id: 19, name: "Smart Fitness Tracker Band...", price: "MMK 38,000", img: "https://picsum.photos/200?random=19" },
+    { id: 20, name: "Formal Slim Fit Trousers...", price: "MMK 26,000", img: "https://picsum.photos/200?random=20" },
+    { id: 21, name: "Soft Fleece Winter Beanie...", price: "MMK 7,200", img: "https://picsum.photos/200?random=21" },
+    { id: 22, name: "Casual Leather Belt Metal Buckle...", price: "MMK 11,000", img: "https://picsum.photos/200?random=22" },
+    { id: 23, name: "Outdoor Hiking Cargo Pants...", price: "MMK 33,000", img: "https://picsum.photos/200?random=23" },
+    { id: 24, name: "Knitted Long Sleeve Sweater...", price: "MMK 24,800", img: "https://picsum.photos/200?random=24" },
+    { id: 25, name: "Classic Oxford Dress Shoes...", price: "MMK 45,000", img: "https://picsum.photos/200?random=25" },
+    { id: 26, name: "Lightweight Windbreaker Jacket...", price: "MMK 29,000", img: "https://picsum.photos/200?random=26" },
+    { id: 27, name: "Casual Canvas Sneakers Low Top...", price: "MMK 21,000", img: "https://picsum.photos/200?random=27" },
+    { id: 28, name: "Sports Gym Duffel Bag...", price: "MMK 27,000", img: "https://picsum.photos/200?random=28" },
+    { id: 29, name: "Striped Cotton Polo Shirt...", price: "MMK 19,800", img: "https://picsum.photos/200?random=29" },
+    { id: 30, name: "Thermal Underwear Set Winter...", price: "MMK 23,500", img: "https://picsum.photos/200?random=30" }
+];
+
+// Screen ပေါ်သို့ ပစ္စည်းများ ထည့်သွင်းပေးခြင်း
+const gridContainer = document.getElementById('productsGrid');
+gridContainer.innerHTML = products.map(item => `
+    <a href="product-detail.html?id=${item.id}" class="product-card">
+        <div class="product-img-box">
+            <img src="${item.img}" alt="${item.name}">
+        </div>
+        <div class="product-info">
+            <div class="product-name">${item.name}</div>
+            <div class="product-price">${item.price}</div>
+        </div>
+    </a>
+`).join('');
+</script>
+
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

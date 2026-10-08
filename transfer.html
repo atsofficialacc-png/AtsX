@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyPay Transfer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background: #eef1f7; font-family: Arial, "Noto Sans Myanmar", sans-serif; color: #202535; }
+    
+    .app { width: 100%; max-width: 100%; min-height: 100vh; margin: auto; background: #f8f9fc; padding-bottom: 120px; }
+    
+    .header { background: linear-gradient(145deg, #673ab7, #43208e); color: white; padding: 22px 18px 28px; border-radius: 0 0 28px 28px; }
+    .header-row { display: flex; align-items: center; gap: 15px; }
+    .back { border: 0; background: #ffffff22; color: white; width: 42px; height: 42px; border-radius: 50%; font-size: 25px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .title { font-size: 21px; font-weight: bold; }
+    .balance { margin-top: 25px; }
+    .balance small { opacity: .8; }
+    .balance strong { display: block; font-size: 31px; margin-top: 5px; }
+    .content { padding: 18px; }
+    .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 25px #0000000c; }
+    label { display: block; font-size: 13px; color: #747b88; margin: 14px 0 7px; }
+    input { width: 100%; padding: 15px; border: 1px solid #dfe3ea; border-radius: 13px; font-size: 16px; outline: none; }
+    input:focus { border-color: #673ab7; }
+    .receiver { display: flex; gap: 10px; }
+    .receiver input { flex: 1; }
+    .check { width: 50px; border: 0; border-radius: 13px; background: #eee7ff; color: #673ab7; font-size: 20px; cursor: pointer; }
+    
+    .result { display: none; margin-top: 15px; padding: 12px 15px; background: #f4f0ff; border-radius: 14px; }
+    .user-profile-box { display: flex; align-items: center; gap: 12px; }
+    .profile-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #673ab7; background: #e0d4ff; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #673ab7; flex-shrink: 0; }
+    .user-info-text { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+    .user-info-text b { font-size: 15px; color: #202535; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-info-text div { font-size: 12px; color: #666; margin-top: 2px; }
+
+    .primary { width: 100%; margin-top: 22px; padding: 16px; border: 0; border-radius: 14px; background: #673ab7; color: white; font-size: 17px; font-weight: bold; cursor: pointer; }
+    .primary:active { transform: scale(.98); }
+    .secondary { width: 100%; margin-top: 10px; padding: 12px; border: 1px solid #dfe3ea; border-radius: 14px; background: transparent; color: #666; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .note { text-align: center; color: #8a909b; font-size: 12px; margin-top: 15px; }
+    .success { display: none; text-align: center; padding: 30px 10px; }
+    .success-icon { font-size: 65px; color: #20a05a; }
+    .amount { font-size: 30px; font-weight: bold; color: #673ab7; margin: 10px; }
+    .toast { position: fixed; bottom: 95px; left: 50%; transform: translateX(-50%); background: #202535; color: white; padding: 12px 18px; border-radius: 12px; display: none; z-index: 10000; }
+
+    /* Custom PIN Modal UI */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      padding: 20px;
+    }
+    .modal-card {
+      background: white;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 24px;
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0 25px;
+    }
+    .pin-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      transition: all 0.2s ease;
+    }
+    .pin-dot.filled {
+      background: #673ab7;
+      border-color: #673ab7;
+      box-shadow: 0 0 10px rgba(103, 58, 183, 0.4);
+    }
+    
+    /* On-Screen Keypad */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    .key-btn {
+      background: #f1f5f9;
+      border: 0;
+      border-radius: 14px;
+      height: 52px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .key-btn:active {
+      background: #e2e8f0;
+      transform: scale(0.96);
+    }
+    .key-btn.action {
+      background: transparent;
+      color: #64748b;
+      font-size: 18px;
+    }
+
+    /* Bottom Nav UI */
+    .bottom-nav-container {
+      position: fixed;
+      bottom: 15px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 9999;
+      padding: 0 10px;
+      pointer-events: none;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .bottom-nav-container.hide-nav {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(100px);
+    }
+    .bottom-nav {
+      pointer-events: auto;
+      position: relative;
+      width: 100%;
+      max-width: 100% !important;
+      height: 68px;
+      background: rgba(20, 10, 35, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-radius: 35px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(168, 85, 247, 0.2);
+    }
+    .nav-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 600;
+      flex: 1;
+      transition: all 0.3s ease;
+      gap: 3px;
+    }
+    .nav-link i { font-size: 18px; transition: transform 0.2s ease, color 0.2s ease; }
+    .nav-link.active { color: #c084fc; }
+    .nav-link.active i { transform: translateY(-2px); color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); }
+    .center-btn-wrapper { position: relative; top: -22px; flex: 1; display: flex; justify-content: center; }
+    .center-btn {
+      width: 62px;
+      height: 62px;
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.8);
+      border: 4px solid #08051f;
+      text-decoration: none;
+      overflow: hidden;
+    }
+    .center-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="header-row">
+      <a href="index.html" class="back">‹</a>
+      <div class="title">Transfer Money</div>
+    </div>
+    <div class="balance">
+      <small>e-Wallet Balance (Ks)</small>
+      <strong id="balanceDisplay">0 MMK</strong>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="card" id="form">
+      <label>Transfer to Account Number</label>
+      <div class="receiver">
+        <input id="receiver" type="tel" placeholder="Please enter Account" autocomplete="off" inputmode="numeric">
+        <button id="receiverStatus" class="check" type="button" tabindex="-1" aria-label="Account status">✓</button>
+      </div>
+
+      <!-- Result Box -->
+      <div id="result" class="result">
+        <div class="user-profile-box">
+          <div id="profileImageContainer">
+            <img id="receiverPf" src="" class="profile-avatar" style="display:none;" alt="Profile">
+            <div id="receiverPfFallback" class="profile-avatar"><i class="fa-solid fa-user"></i></div>
+          </div>
+          <div class="user-info-text">
+            <b id="receiverName">Account Name: -</b>
+            <div id="receiverNumber">Account ID: -</div>
+          </div>
+        </div>
+      </div>
+
+      <label>Amount Ks</label>
+      <input id="amount" type="number" min="1" placeholder="Enter amount">
+
+      <label>Note</label>
+      <input id="note" type="text" placeholder="Optional">
+
+      <button class="primary" onclick="openPinModal()">Continue Transfer</button>
+
+      <div class="note">
+        * Always check the recipient's phone number and the amount to avoid incorrect transactions.<br>
+        * Please make sure to add notes to transfer.
+      </div>
+    </div>
+
+    <div class="card success" id="success">
+      <div class="success-icon">✓</div>
+      <h2>Transfer Successful!</h2>
+      <div class="amount" id="successAmount">0 MMK</div>
+      <p id="successTo" style="color: #666; margin-top: 5px;"></p>
+      <button class="primary" onclick="location.href='index.html'">Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom PIN Keypad Modal -->
+<div class="modal-overlay" id="pinModal">
+  <div class="modal-card">
+    <h3 style="margin: 0;">PIN နံပါတ် ရိုက်ထည့်ပါ</h3>
+    <p style="font-size:13px; color:#666; margin-top: 5px;">ငွေလွှဲမှု အောင်မြင်ရန် PIN (၄ လုံး) နှိပ်ပါ</p>
+    
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+
+    <div class="keypad">
+      <button class="key-btn" onclick="pressKey('1')">1</button>
+      <button class="key-btn" onclick="pressKey('2')">2</button>
+      <button class="key-btn" onclick="pressKey('3')">3</button>
+      <button class="key-btn" onclick="pressKey('4')">4</button>
+      <button class="key-btn" onclick="pressKey('5')">5</button>
+      <button class="key-btn" onclick="pressKey('6')">6</button>
+      <button class="key-btn" onclick="pressKey('7')">7</button>
+      <button class="key-btn" onclick="pressKey('8')">8</button>
+      <button class="key-btn" onclick="pressKey('9')">9</button>
+      <button class="key-btn action" onclick="closePinModal()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="key-btn" onclick="pressKey('0')">0</button>
+      <button class="key-btn action" onclick="pressDelete()"><i class="fa-solid fa-backspace"></i></button>
+    </div>
+
+    <button class="primary" onclick="confirmPinAndTransfer()" style="margin-top: 5px;">အတည်ပြုမည်</button>
+  </div>
+</div>
+
+<!-- Floating Curved Bottom Navigation -->
+<div class="bottom-nav-container" id="bottomNav">
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-link">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="order.html" class="nav-link">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>Orders</span>
+    </a>
+    <div class="center-btn-wrapper">
+      <a href="topup.html" class="center-btn">
+        <img src="Wallet.jpg" alt="Wallet">
+      </a>
+    </div>
+    <a href="transfer.html" class="nav-link active">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>Transfer</span>
+    </a>
+    <a href="login.html" class="nav-link">
+      <i class="fa-solid fa-user"></i>
+      <span>Account</span>
+    </a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let isAccountVerified = false;
+let verifiedUser = null;
+let currentPin = "";
+
+function getUserDisplayName(user) {
+  if (!user) return 'User';
+  if (user.name && user.name.trim() !== '' && user.name !== 'login.html') {
+    return user.name;
+  }
+  if (user.username && user.username.trim() !== '' && user.username !== 'login.html') {
+    return user.username;
+  }
+  if (user.fullname && user.fullname.trim() !== '') {
+    return user.fullname;
+  }
+  const accountId = String(user.id || user.phone || '');
+  if (accountId) {
+    return 'User_' + accountId.slice(-4);
+  }
+  return 'User';
+}
+
+const bottomNav = document.getElementById('bottomNav');
+const originalHeight = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  if (window.innerHeight < originalHeight - 100) {
+    bottomNav.classList.add('hide-nav');
+  } else {
+    bottomNav.classList.remove('hide-nav');
+  }
+});
+
+function checkAccountAndLoadBalance() {
+  const currentUser = JSON.parse(localStorage.getItem('atsx_current_user') || "null");
+  const users = JSON.parse(localStorage.getItem("atsx_users") || "[]");
+  const balanceText = document.getElementById('balanceDisplay');
+
+  if (!currentUser) {
+    localStorage.removeItem("atsx_current_user");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const updatedUser = users.find(u => 
+    (u.phone && String(u.phone) === String(currentUser.phone)) || 
+    (u.id && String(u.id) === String(currentUser.id))
+  );
+
+  if (!updatedUser) {
+    showAlert("သင့်အကောင့် ဖျက်လိုက်ပါပြီ။");
+    localStorage.removeItem("atsx_current_user");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const currentBalance = updatedUser.balance || 0;
+  if (balanceText) {
+    balanceText.textContent = Number(currentBalance).toLocaleString() + ' MMK';
+  }
+}
+
+function checkReceiver(showToast = false){
+  const accountId = document.getElementById('receiver').value.trim();
+  const users = JSON.parse(localStorage.getItem("atsx_users") || "[]");
+  const status = document.getElementById('receiverStatus');
+
+  // Every new keystroke invalidates the previous verification until an exact
+  // account ID/phone match is found. No check button press is required.
+  verifiedUser = null;
+  isAccountVerified = false;
+
+  if(!accountId) {
+    document.getElementById('result').style.display = 'none';
+    if (status) { status.textContent = '✓'; status.style.opacity = '.45'; }
+    return false;
+  }
+
+  const found = users.find(u => String(u.id) === accountId || String(u.phone) === accountId);
+
+  if (found) {
+    verifiedUser = found;
+    isAccountVerified = true;
+
+    const displayName = getUserDisplayName(found);
+    document.getElementById('receiverName').textContent = 'Account Name: ' + displayName;
+    document.getElementById('receiverNumber').textContent = 'Account ID: ' + (found.id || found.phone);
+
+    const pfUrl = found.pf || found.profile || found.avatar || found.img;
+    const imgElem = document.getElementById('receiverPf');
+    const fallbackElem = document.getElementById('receiverPfFallback');
+    if (pfUrl) {
+      imgElem.src = pfUrl;
+      imgElem.style.display = 'block';
+      fallbackElem.style.display = 'none';
+    } else {
+      imgElem.style.display = 'none';
+      fallbackElem.style.display = 'flex';
+    }
+
+    document.getElementById('result').style.display = 'block';
+    if (status) {
+      status.textContent = '✓';
+      status.style.opacity = '1';
+      status.style.background = '#e6dcff';
+      status.style.color = '#673ab7';
+    }
+    if (showToast) toast('Account စစ်ဆေးပြီးပါပြီ');
+    return true;
+  }
+
+  document.getElementById('result').style.display = 'none';
+  if (status) {
+    status.textContent = '…';
+    status.style.opacity = '.7';
+  }
+  if (showToast) toast('အကောင့် မရှိပါ။ ID အမှန်ကို ပြန်စစ်ပါ');
+  return false;
+}
+
+// Auto-check recipient as soon as the entered number matches an existing
+// account. The user no longer needs to press the ✓ button.
+(function setupAutoReceiverCheck(){
+  const receiver = document.getElementById('receiver');
+  const status = document.getElementById('receiverStatus');
+  if (!receiver) return;
+
+  let timer = null;
+  receiver.addEventListener('input', function(){
+    clearTimeout(timer);
+    timer = setTimeout(() => checkReceiver(false), 120);
+  });
+
+  if (status) {
+    status.disabled = true;
+    status.style.cursor = 'default';
+  }
+})();
+
+/* Custom Keypad PIN Controls */
+function openPinModal() {
+  const currentUser = JSON.parse(localStorage.getItem('atsx_current_user') || "null");
+  const amt = Number(document.getElementById('amount').value);
+
+  if(!currentUser){
+    toast('ကျေးဇူးပြု၍ အကောင့် Login အရင်ဝင်ပါ');
+    window.location.href = "login.html";
+    return;
+  }
+
+  if(!isAccountVerified || !verifiedUser){
+    toast('အကောင့်နံပါတ် မှန်ကန်သောအကောင့်ကို ထည့်ပါ');
+    return;
+  }
+
+  const senderBalance = Number(currentUser.balance || 0);
+
+  if(!amt || amt <= 0){
+    toast('ငွေပမာဏ ရိုက်ထည့်ပါ');
+    return;
+  }
+
+  if(amt > senderBalance){
+    toast('လက်ကျန်ငွေ မလုံလောက်ပါ');
+    return;
+  }
+
+  resetPin();
+  document.getElementById('pinModal').style.display = 'flex';
+}
+
+function closePinModal() {
+  document.getElementById('pinModal').style.display = 'none';
+  resetPin();
+}
+
+function resetPin() {
+  currentPin = "";
+  updatePinDots();
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`dot${i}`);
+    if (i < currentPin.length) {
+      dot.classList.add('filled');
+    } else {
+      dot.classList.remove('filled');
+    }
+  }
+}
+
+function pressKey(num) {
+  if (currentPin.length < 4) {
+    currentPin += num;
+    updatePinDots();
+  }
+}
+
+function pressDelete() {
+  if (currentPin.length > 0) {
+    currentPin = currentPin.slice(0, -1);
+    updatePinDots();
+  }
+}
+
+function confirmPinAndTransfer() {
+  const currentUser = JSON.parse(localStorage.getItem('atsx_current_user') || "null");
+
+  if (currentPin.length < 4) {
+    toast('PIN ၄ လုံး ပြည့်အောင် နှိပ်ပါ');
+    return;
+  }
+
+  const userPin = String(currentUser.pin || "1234");
+
+  if (currentPin !== userPin) {
+    toast('PIN နံပါတ် မမှန်ကန်ပါ');
+    resetPin();
+    return;
+  }
+
+  closePinModal();
+  transfer();
+}
+
+function transfer(){
+  const currentUser = JSON.parse(localStorage.getItem('atsx_current_user') || "null");
+  const amt = Number(document.getElementById('amount').value);
+  const noteText = document.getElementById('note').value.trim() || "ငွေလွှဲခြင်း";
+
+  let users = JSON.parse(localStorage.getItem("atsx_users") || "[]");
+
+  const senderIndex = users.findIndex(u => String(u.id) === String(currentUser.id) || String(u.phone) === String(currentUser.phone));
+  if (senderIndex === -1) {
+    showAlert("သင့်အကောင့် ဖျက်လိုက်ပါပြီ။");
+    localStorage.removeItem("atsx_current_user");
+    window.location.href = "login.html";
+    return;
+  }
+
+  users[senderIndex].balance = Number(users[senderIndex].balance || 0) - amt;
+  currentUser.balance = users[senderIndex].balance;
+
+  const receiverIndex = users.findIndex(u => String(u.id) === String(verifiedUser.id) || String(u.phone) === String(verifiedUser.phone));
+  if (receiverIndex !== -1) {
+    users[receiverIndex].balance = Number(users[receiverIndex].balance || 0) + amt;
+  }
+
+  localStorage.setItem("atsx_users", JSON.stringify(users));
+  localStorage.setItem("atsx_current_user", JSON.stringify(currentUser));
+
+  let historyList = JSON.parse(localStorage.getItem("atsx_topup_history") || "[]");
+  
+  const now = new Date();
+  const timeStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+  const txNo = "0100" + Math.floor(1000000000000000 + Math.random() * 9000000000000000);
+
+  const receiverAccountVal = verifiedUser.id || verifiedUser.phone || '-';
+  const senderAccountVal = currentUser.id || currentUser.phone || '-';
+
+  const targetName = getUserDisplayName(verifiedUser);
+  const senderName = getUserDisplayName(currentUser);
+
+  historyList.unshift({
+    userId: currentUser.id || currentUser.phone,
+    type: "outflow",
+    title: `Transfer To ${targetName}`,
+    amount: `-${amt.toLocaleString()} Ks`,
+    time: timeStr,
+    txNo: txNo,
+    target: targetName,
+    receiverId: receiverAccountVal,
+    note: noteText
+  });
+
+  historyList.unshift({
+    userId: verifiedUser.id || verifiedUser.phone,
+    type: "inflow",
+    title: `Transfer From ${senderName}`,
+    amount: `+${amt.toLocaleString()} Ks`,
+    time: timeStr,
+    txNo: txNo,
+    target: senderName,
+    receiverId: senderAccountVal,
+    note: noteText
+  });
+
+  localStorage.setItem("atsx_topup_history", JSON.stringify(historyList));
+
+  checkAccountAndLoadBalance();
+
+  document.getElementById('form').style.display = 'none';
+  document.getElementById('successAmount').textContent = amt.toLocaleString() + ' MMK';
+  document.getElementById('successTo').textContent = 'Sent to: ' + targetName + ' (' + receiverAccountVal + ')';
+  document.getElementById('success').style.display = 'block';
+}
+
+function toast(msg){
+  const t = document.getElementById('toast'); 
+  if(t){
+    t.textContent = msg; 
+    t.style.display = 'block';
+    setTimeout(()=> t.style.display='none', 2000);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', checkAccountAndLoadBalance);
+window.addEventListener('pageshow', checkAccountAndLoadBalance);
+window.addEventListener('storage', (e) => {
+  if (e.key === 'atsx_users' || e.key === 'atsx_current_user') {
+    checkAccountAndLoadBalance();
+  }
+});
+</script>
+
+<!-- AtsX Custom Alert -->
+<style id="atsx-alert-style">
+#atsxAlertOverlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(2,1,10,.72);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+#atsxAlertOverlay.show{display:flex;animation:atsxFade .18s ease-out}
+#atsxAlertBox{width:min(390px,92vw);position:relative;overflow:hidden;border:1px solid rgba(168,91,255,.48);border-radius:24px;background:linear-gradient(145deg,rgba(24,12,48,.98),rgba(7,5,20,.98));box-shadow:0 24px 70px rgba(0,0,0,.65),0 0 35px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.08);transform:scale(.92);animation:atsxPop .22s cubic-bezier(.2,.9,.25,1.15) forwards}
+#atsxAlertBox:before{content:"";position:absolute;left:-20%;top:-70px;width:140%;height:130px;background:radial-gradient(ellipse,rgba(145,72,255,.35),transparent 65%);pointer-events:none}
+.atsx-alert-line{height:3px;width:100%;background:linear-gradient(90deg,#6d28d9,#c084fc,#7c3aed,#6d28d9);box-shadow:0 0 18px rgba(168,85,247,.8)}
+.atsx-alert-content{padding:25px 23px 22px;text-align:center;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.atsx-alert-icon{width:58px;height:58px;margin:0 auto 13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:27px;background:linear-gradient(145deg,rgba(139,92,246,.28),rgba(59,7,100,.5));border:1px solid rgba(192,132,252,.42);box-shadow:0 0 25px rgba(139,92,246,.22),inset 0 0 18px rgba(168,85,247,.1)}
+.atsx-alert-title{font-size:19px;font-weight:800;letter-spacing:.2px;margin-bottom:9px;background:linear-gradient(90deg,#fff,#d8b4fe);-webkit-background-clip:text;background-clip:text;color:transparent}
+.atsx-alert-message{font-size:14px;line-height:1.65;color:#d7d1e5;white-space:pre-wrap;word-break:break-word;max-height:180px;overflow:auto}
+#atsxAlertOk{margin-top:20px;min-width:125px;padding:11px 25px;border:1px solid rgba(192,132,252,.55);border-radius:13px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#6d28d9,#9333ea);box-shadow:0 8px 22px rgba(109,40,217,.3),inset 0 1px 0 rgba(255,255,255,.16);transition:.16s ease}
+#atsxAlertOk:active{transform:scale(.96)}
+#atsxAlertOk:hover{filter:brightness(1.12);box-shadow:0 10px 28px rgba(147,51,234,.4)}
+@keyframes atsxFade{from{opacity:0}to{opacity:1}}
+@keyframes atsxPop{to{transform:scale(1)}}
+@media(max-width:420px){#atsxAlertBox{border-radius:21px}.atsx-alert-content{padding:22px 18px 19px}.atsx-alert-message{font-size:13.5px}}
+</style>
+<div id="atsxAlertOverlay" role="dialog" aria-modal="true" aria-labelledby="atsxAlertTitle">
+  <div id="atsxAlertBox">
+    <div class="atsx-alert-line"></div>
+    <div class="atsx-alert-content">
+      <div class="atsx-alert-icon" id="atsxAlertIcon">!</div>
+      <div class="atsx-alert-title" id="atsxAlertTitle">AtsX Store</div>
+      <div class="atsx-alert-message" id="atsxAlertMessage"></div>
+      <button id="atsxAlertOk" type="button">OK</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const overlay=document.getElementById('atsxAlertOverlay');
+  const msgEl=document.getElementById('atsxAlertMessage');
+  const titleEl=document.getElementById('atsxAlertTitle');
+  const iconEl=document.getElementById('atsxAlertIcon');
+  const ok=document.getElementById('atsxAlertOk');
+  if(!overlay) return;
+  let lastFocus=null;
+  window.showAlert=function(message){
+    lastFocus=document.activeElement;
+    const text=String(message ?? '');
+    msgEl.textContent=text;
+    const success=/[✅]|အောင်မြင်|success|completed/i.test(text);
+    const error=/[❌]|error|မလုံလောက်|ထည့်သွင်း|ဦးစွာ|ငြင်းပယ်|ဖျက်/i.test(text);
+    titleEl.textContent=success?'အောင်မြင်ပါသည်':error?'သတိပေးချက်':'AtsX Store';
+    iconEl.textContent=success?'✓':error?'×':'!';
+    overlay.classList.add('show');
+    document.body.style.overflow='hidden';
+    setTimeout(()=>ok.focus(),20);
+  };
+  function closeAlert(){overlay.classList.remove('show');document.body.style.overflow='';if(lastFocus&&lastFocus.focus) lastFocus.focus();}
+  ok.addEventListener('click',closeAlert);
+  overlay.addEventListener('click',e=>{if(e.target===overlay) closeAlert();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('show')) closeAlert();});
+})();
+</script>
+
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

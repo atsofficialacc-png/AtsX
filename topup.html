@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ငွေဖြည့်မည် - AtsX Store</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Noto Sans Myanmar", sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: #0d0614; color: #fff; min-height: 100vh; padding: 15px 12px 50px; }
+    
+    /* Header UI */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .back-btn { width: 36px; height: 36px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; font-size: 20px; font-weight: bold; }
+    .page-title { font-size: 18px; font-weight: bold; }
+    .history-link { background: #3b82f6; color: #fff; padding: 7px 14px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+
+    /* Your Wallet Gradient Card */
+    .wallet-card {
+      background: linear-gradient(135deg, #a770ef, #cf8bf3, #fdb99b);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 20px;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(167, 112, 239, 0.2);
+    }
+    .wallet-top { display: flex; justify-content: space-between; align-items: center; }
+    .wallet-label { font-size: 12px; opacity: 0.9; }
+    .wallet-balance { font-size: 22px; font-weight: 800; margin-top: 2px; }
+    .wallet-topup-badge { background: rgba(255, 255, 255, 0.3); border: 1px solid rgba(255, 255, 255, 0.5); padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+    
+    .wallet-bottom {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      font-size: 12px;
+    }
+    .wallet-link { color: #fff; text-decoration: none; display: flex; align-items: center; gap: 4px; opacity: 0.95; }
+
+    /* Labels & Select Inputs */
+    .section-label { font-size: 13px; color: #d1d5db; margin-bottom: 8px; }
+
+    .currency-select, .amount-input {
+      width: 100%;
+      background: #180d28;
+      border: 1px solid #3b1d60;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    /* Accounts Grid */
+    .accounts-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .account-card { background: #180d28; border: 1px solid #2d164d; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .acc-top { display: flex; align-items: center; justify-content: space-between; }
+    .acc-info { display: flex; align-items: center; gap: 12px; }
+    .acc-logo { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; text-align: center; line-height: 1.1; }
+    .kpay { background: #0056b3; color: #fff; }
+    .ayapay { background: #d9251d; color: #fff; }
+    .wave { background: #facc15; color: #000; }
+    
+    .acc-details { font-size: 13px; }
+    .acc-number { font-weight: bold; font-size: 14px; letter-spacing: 0.5px; }
+    .acc-name { color: #9ca3af; font-size: 12px; }
+    .copy-btn { background: #6366f1; color: #fff; border: 0; padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    
+    .tutorial-btn { width: 100%; background: #f59e0b; color: #000; border: 0; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    /* Upload Box UI */
+    .upload-box { background: #ffffff; border-radius: 12px; padding: 25px 15px; text-align: center; color: #0284c7; cursor: pointer; margin-bottom: 20px; }
+    .upload-icon { font-size: 38px; margin-bottom: 6px; display: block; }
+    .upload-text { font-size: 15px; font-weight: bold; color: #0284c7; }
+    #fileInput { display: none; }
+    .preview-img { max-width: 100%; max-height: 200px; border-radius: 8px; display: none; margin: 10px auto 0; }
+
+    /* Submit Button */
+    .submit-btn { width: 100%; background: #22c55e; color: #fff; border: 0; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+    /* Toast Alert UI */
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #21152f; color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: bold; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 1000; }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <div class="header">
+    <a href="index.html" class="back-btn">‹</a>
+    <div class="page-title">ငွေဖြည့်မည်</div>
+    <a href="topup-history.html" class="history-link">📋 မှတ်တမ်း</a>
+  </div>
+
+  <!-- Your Wallet Gradient Display -->
+  <div class="wallet-card">
+    <div class="wallet-top">
+      <div>
+        <div class="wallet-label">Your Wallet</div>
+        <div class="wallet-balance">🇲🇲 <span id="walletBalanceText">0</span> ks</div>
+      </div>
+      <div class="wallet-topup-badge">AtsX Store</div>
+    </div>
+    <div class="wallet-bottom">
+      <a href="transfer-history.html" class="wallet-link">🕒 transfer History</a>
+      <span style="opacity:0.4;">|</span>
+      <a href="topup-history.html" class="wallet-link">🕒 Top-up History</a>
+    </div>
+  </div>
+
+  <!-- Currency Selection -->
+  <div class="section-label">ငွေလွှဲအမျိုးအစားရွေးပါ</div>
+  <select class="currency-select">
+    <option value="mmk">မြန်မာကျပ် 🇲🇲</option>
+  </select>
+
+  <!-- Payment Accounts Section -->
+  <div class="section-label">ငွေလွှဲနံပါတ်</div>
+  <div class="accounts-grid">
+    
+    <!-- KBZ Pay -->
+    <div class="account-card">
+      <div class="acc-top">
+        <div class="acc-info">
+          <div class="acc-logo kpay">KBZ<br>Pay</div>
+          <div class="acc-details">
+            <div class="acc-number">09788030971</div>
+            <div class="acc-name">Aung Thant Sin</div>
+          </div>
+        </div>
+        <button class="copy-btn" onclick="copyText('09788030971')">Copy</button>
+      </div>
+      <button class="tutorial-btn">📲 ငွေလွှဲနည်း</button>
+    </div>
+
+    <!-- AYA Pay -->
+    <div class="account-card">
+      <div class="acc-top">
+        <div class="acc-info">
+          <div class="acc-logo ayapay">AYA<br>Pay</div>
+          <div class="acc-details">
+            <div class="acc-number">09788030971</div>
+            <div class="acc-name">Aung Thant Sin</div>
+          </div>
+        </div>
+        <button class="copy-btn" onclick="copyText('09788030971')">Copy</button>
+      </div>
+      <button class="tutorial-btn">📲 ငွေလွှဲနည်း</button>
+    </div>
+
+    <!-- Wave Pay -->
+    <div class="account-card">
+      <div class="acc-top">
+        <div class="acc-info">
+          <div class="acc-logo wave">Wave<br>Pay</div>
+          <div class="acc-details">
+            <div class="acc-number">09788030971</div>
+            <div class="acc-name">Aung Thant Sin</div>
+          </div>
+        </div>
+        <button class="copy-btn" onclick="copyText('09788030971')">Copy</button>
+      </div>
+      <button class="tutorial-btn">📲 ငွေလွှဲနည်း</button>
+    </div>
+
+  </div>
+
+  <!-- Amount Input -->
+  <div class="section-label">ဖြည့်သွင်းလိုသည့် ငွေပမာဏ (MMK)</div>
+  <input type="number" id="topupAmountInput" class="amount-input" placeholder="ဥပမာ - 5000">
+
+  <!-- Payment Screenshot Upload -->
+  <div class="section-label">Payment Screenshot ( ငွေလွှဲ Id ပါတဲ့ပုံ )</div>
+  <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+    <span class="upload-icon">☁️</span>
+    <div class="upload-text" id="uploadText">ငွေလွှဲပုံထည့်ရန်နှိပ်ပါ</div>
+    <img id="preview" class="preview-img" alt="Preview">
+  </div>
+  <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+
+  <!-- Submit Button -->
+  <button class="submit-btn" onclick="submitTopup()">ဝယ်ယူမည်</button>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+  let compressedBase64Image = "";
+
+  // Clipboard ရေးသားရန် Function
+  function copyText(text) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      showToast("နံပါတ် Copy ကူးပြီးပါပြီ");
+    }
+  }
+
+  // Toast Alert ပြသရန်
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    if (t) {
+      t.textContent = msg;
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 2000);
+    } else {
+      showAlert(msg);
+    }
+  }
+
+  // အကောင့် တည်ရှိမှု စစ်ဆေးခြင်းနှင့် Wallet Balance ပြုလုပ်ရန်
+  function loadWalletBalance() {
+    const currentUser = JSON.parse(localStorage.getItem("atsx_current_user") || "null");
+    const users = JSON.parse(localStorage.getItem("atsx_users") || "[]");
+    const walletElement = document.getElementById("walletBalanceText");
+
+    if (!currentUser) {
+      localStorage.removeItem("atsx_current_user");
+      window.location.href = "login.html";
+      return;
+    }
+
+    const updatedUser = users.find(u => 
+      (u.phone && u.phone === currentUser.phone) || 
+      (u.id && u.id === currentUser.id)
+    );
+
+    if (!updatedUser) {
+      showAlert("သင့်အကောင့် ဖျက်လိုက်ပါပြီ။");
+      localStorage.removeItem("atsx_current_user");
+      window.location.href = "login.html";
+      return;
+    }
+
+    if (walletElement) {
+      walletElement.textContent = (updatedUser.balance || 0).toLocaleString();
+    }
+  }
+
+  // ပုံကို Size ချုံ့ပေးသည့် စနစ် (Compress Image)
+  function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 500;
+        const scaleFactor = MAX_WIDTH / img.width;
+        
+        if (img.width > MAX_WIDTH) {
+          canvas.width = MAX_WIDTH;
+          canvas.height = img.height * scaleFactor;
+        } else {
+          canvas.width = img.width;
+          canvas.height = img.height;
+        }
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        compressedBase64Image = canvas.toDataURL("image/jpeg", 0.6);
+
+        const preview = document.getElementById('preview');
+        if (preview) {
+          preview.src = compressedBase64Image;
+          preview.style.display = 'block';
+        }
+        const uploadText = document.getElementById('uploadText');
+        if (uploadText) {
+          uploadText.style.display = 'none';
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Topup တောင်းဆိုမှု Submit ပြုလုပ်ရန်
+  async function submitTopup() {
+    try {
+      const amountInput = document.getElementById('topupAmountInput');
+      if (!amountInput || !amountInput.value || Number(amountInput.value) <= 0) {
+        showToast("ကျေးဇူးပြု၍ ဖြည့်သွင်းလိုသည့် ငွေပမာဏ ရိုက်ထည့်ပါ"); return;
+      }
+      if (!compressedBase64Image) {
+        showToast("ကျေးဇူးပြု၍ ငွေလွှဲပြေစာ Screenshot ထည့်ပေးပါ"); return;
+      }
+      const currentUser = JSON.parse(localStorage.getItem("atsx_current_user") || "null");
+      if (!currentUser) { showToast("ကျေးဇူးပြု၍ Login ဝင်ပါ"); return; }
+      const topupAmount = Number(amountInput.value);
+      const now = new Date();
+      const formattedDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
+                            ', ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const newRecord = {
+        id: "TP" + Math.floor(100000 + Math.random() * 900000).toString(),
+        userName: currentUser.name || "Guest",
+        userPhone: currentUser.phone || "Unknown",
+        amount: topupAmount,
+        image: compressedBase64Image,
+        date: formattedDate,
+        status: "Pending"
+      };
+
+      const apiBase = window.ATSX_API_BASE || '';
+      const response = await fetch(apiBase + '/api/orders', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ order: newRecord, user: currentUser })
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Server error');
+
+      let historyList = JSON.parse(localStorage.getItem("atsx_topup_history") || "[]");
+      historyList = [newRecord, ...historyList.filter(o => String(o.id) !== String(newRecord.id))].slice(0, 20);
+      let topupOrders = JSON.parse(localStorage.getItem("atsx_topup_orders") || "[]");
+      topupOrders = [newRecord, ...topupOrders.filter(o => String(o.id) !== String(newRecord.id))].slice(0, 20);
+      localStorage.setItem("atsx_topup_history", JSON.stringify(historyList));
+      localStorage.setItem("atsx_topup_orders", JSON.stringify(topupOrders));
+
+      showToast("ငွေဖြည့်တောင်းဆိုမှု အောင်မြင်ပါသည်။ Admin စစ်ဆေးမှုကို စောင့်ပါ");
+      setTimeout(() => { window.location.href = "topup-history.html"; }, 1000);
+    } catch (err) {
+      console.error(err);
+      showToast("Server မချိတ်နိုင်ပါ။ Hosting/Server ကို စစ်ပါ");
+    }
+  }
+
+  // Page စဖွင့်ချိန်၊ ထပ်မံကြည့်ရှုချိန်နှင့် Storage ပြောင်းလဲချိန်များတွင် အကောင့်စစ်မည်
+  window.addEventListener('DOMContentLoaded', loadWalletBalance);
+  window.addEventListener('pageshow', loadWalletBalance);
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'atsx_users' || e.key === 'atsx_current_user') {
+      loadWalletBalance();
+    }
+  });
+  </script>
+
+<!-- AtsX Custom Alert -->
+<style id="atsx-alert-style">
+#atsxAlertOverlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(2,1,10,.72);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+#atsxAlertOverlay.show{display:flex;animation:atsxFade .18s ease-out}
+#atsxAlertBox{width:min(390px,92vw);position:relative;overflow:hidden;border:1px solid rgba(168,91,255,.48);border-radius:24px;background:linear-gradient(145deg,rgba(24,12,48,.98),rgba(7,5,20,.98));box-shadow:0 24px 70px rgba(0,0,0,.65),0 0 35px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.08);transform:scale(.92);animation:atsxPop .22s cubic-bezier(.2,.9,.25,1.15) forwards}
+#atsxAlertBox:before{content:"";position:absolute;left:-20%;top:-70px;width:140%;height:130px;background:radial-gradient(ellipse,rgba(145,72,255,.35),transparent 65%);pointer-events:none}
+.atsx-alert-line{height:3px;width:100%;background:linear-gradient(90deg,#6d28d9,#c084fc,#7c3aed,#6d28d9);box-shadow:0 0 18px rgba(168,85,247,.8)}
+.atsx-alert-content{padding:25px 23px 22px;text-align:center;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.atsx-alert-icon{width:58px;height:58px;margin:0 auto 13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:27px;background:linear-gradient(145deg,rgba(139,92,246,.28),rgba(59,7,100,.5));border:1px solid rgba(192,132,252,.42);box-shadow:0 0 25px rgba(139,92,246,.22),inset 0 0 18px rgba(168,85,247,.1)}
+.atsx-alert-title{font-size:19px;font-weight:800;letter-spacing:.2px;margin-bottom:9px;background:linear-gradient(90deg,#fff,#d8b4fe);-webkit-background-clip:text;background-clip:text;color:transparent}
+.atsx-alert-message{font-size:14px;line-height:1.65;color:#d7d1e5;white-space:pre-wrap;word-break:break-word;max-height:180px;overflow:auto}
+#atsxAlertOk{margin-top:20px;min-width:125px;padding:11px 25px;border:1px solid rgba(192,132,252,.55);border-radius:13px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#6d28d9,#9333ea);box-shadow:0 8px 22px rgba(109,40,217,.3),inset 0 1px 0 rgba(255,255,255,.16);transition:.16s ease}
+#atsxAlertOk:active{transform:scale(.96)}
+#atsxAlertOk:hover{filter:brightness(1.12);box-shadow:0 10px 28px rgba(147,51,234,.4)}
+@keyframes atsxFade{from{opacity:0}to{opacity:1}}
+@keyframes atsxPop{to{transform:scale(1)}}
+@media(max-width:420px){#atsxAlertBox{border-radius:21px}.atsx-alert-content{padding:22px 18px 19px}.atsx-alert-message{font-size:13.5px}}
+</style>
+<div id="atsxAlertOverlay" role="dialog" aria-modal="true" aria-labelledby="atsxAlertTitle">
+  <div id="atsxAlertBox">
+    <div class="atsx-alert-line"></div>
+    <div class="atsx-alert-content">
+      <div class="atsx-alert-icon" id="atsxAlertIcon">!</div>
+      <div class="atsx-alert-title" id="atsxAlertTitle">AtsX Store</div>
+      <div class="atsx-alert-message" id="atsxAlertMessage"></div>
+      <button id="atsxAlertOk" type="button">OK</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const overlay=document.getElementById('atsxAlertOverlay');
+  const msgEl=document.getElementById('atsxAlertMessage');
+  const titleEl=document.getElementById('atsxAlertTitle');
+  const iconEl=document.getElementById('atsxAlertIcon');
+  const ok=document.getElementById('atsxAlertOk');
+  if(!overlay) return;
+  let lastFocus=null;
+  window.showAlert=function(message){
+    lastFocus=document.activeElement;
+    const text=String(message ?? '');
+    msgEl.textContent=text;
+    const success=/[✅]|အောင်မြင်|success|completed/i.test(text);
+    const error=/[❌]|error|မလုံလောက်|ထည့်သွင်း|ဦးစွာ|ငြင်းပယ်|ဖျက်/i.test(text);
+    titleEl.textContent=success?'အောင်မြင်ပါသည်':error?'သတိပေးချက်':'AtsX Store';
+    iconEl.textContent=success?'✓':error?'×':'!';
+    overlay.classList.add('show');
+    document.body.style.overflow='hidden';
+    setTimeout(()=>ok.focus(),20);
+  };
+  function closeAlert(){overlay.classList.remove('show');document.body.style.overflow='';if(lastFocus&&lastFocus.focus) lastFocus.focus();}
+  ok.addEventListener('click',closeAlert);
+  overlay.addEventListener('click',e=>{if(e.target===overlay) closeAlert();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('show')) closeAlert();});
+})();
+</script>
+
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

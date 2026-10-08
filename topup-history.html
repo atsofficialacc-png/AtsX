@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AtsX Store - Order History</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: #0b0517; color: #fff; min-height: 100vh; padding: 20px 15px 100px; display: flex; flex-direction: column; align-items: center; }
+
+    .container { width: 100%; max-width: 500px; }
+
+    /* Header Structure (Matching Preview Image) */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      background: #23123e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      border: 1px solid #361b5f;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #b185ff;
+    }
+
+    /* Status Filters & Refresh (Matching Preview Image) */
+    .filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .status-filters {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      background: #180a32;
+      color: #836e9d;
+      border: 1px solid #281248;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active {
+      background: #a855f7;
+      color: #fff;
+      border-color: #a855f7;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+    }
+
+    .refresh-btn {
+      background: #180a32;
+      border: 1px solid #281248;
+      color: #d1c4e9;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Search Bar Optional (Subtle) */
+    .search-box {
+      margin-bottom: 20px;
+    }
+    .search-input {
+      width: 100%;
+      background: #120824;
+      border: 1px solid #281248;
+      border-radius: 14px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-input::placeholder { color: #5a4b73; }
+
+    /* History Cards List */
+    .history-list { display: flex; flex-direction: column; gap: 12px; min-height: 250px; }
+    
+    .history-card {
+      background: #130826;
+      border: 1px solid #251243;
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .history-card:active { transform: scale(0.98); }
+    .history-card:hover { border-color: #a855f7; }
+
+    .card-left { display: flex; align-items: center; gap: 12px; }
+    .app-icon {
+      width: 42px;
+      height: 42px;
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #c084fc;
+    }
+    .card-info { display: flex; flex-direction: column; gap: 3px; }
+    .item-title { font-size: 14px; font-weight: bold; color: #f0eafc; }
+    .date-text { font-size: 11px; color: #706280; }
+    .amount-text { font-size: 13px; font-weight: bold; color: #a855f7; margin-top: 2px; }
+
+    .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+    .status-badge.Approved, .status-badge.approved, .status-badge.Success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status-badge.Outflow, .status-badge.Outflow { background: rgba(245, 158, 11, 0.15); color: #red; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-badge.Rejected, .status-badge.rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Empty State (Exact Match to Preview Image) */
+    .empty-state {
+      text-align: center;
+      color: #7d6b91;
+      margin-top: 80px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    /* Modal Styling */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
+    .modal-content { background: #120824; border: 1px solid #33175c; border-radius: 20px; width: 100%; max-width: 400px; padding: 20px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #251243; padding-bottom: 12px; margin-bottom: 15px; }
+    .modal-title { font-size: 16px; font-weight: bold; color: #c084fc; }
+    .close-btn { background: #251243; color: #aaa; border: 0; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    .detail-row { display: flex; flex-direction: column; gap: 3px; margin-bottom: 12px; }
+    .detail-label { font-size: 11px; color: #706280; text-transform: uppercase; }
+    .detail-value { font-size: 14px; font-weight: bold; color: #fff; }
+
+    .slip-box { margin-top: 15px; text-align: center; }
+    .slip-img { max-width: 100%; border-radius: 10px; border: 1px solid #33175c; max-height: 200px; object-fit: contain; }
+
+    /* Curved Bottom Navigation Bar */
+    .bottom-nav-container {
+      position: fixed;
+      bottom: 15px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 9999;
+      padding: 0 10px;
+    }
+
+    .bottom-nav {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      height: 65px;
+      background: rgba(18, 8, 36, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 35px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    .nav-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #706280;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 600;
+      flex: 1;
+      gap: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link i { font-size: 18px; }
+    .nav-link.active { color: #c084fc; }
+    .nav-link.active i { color: #a855f7; transform: translateY(-2px); text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); }
+
+    .center-btn-wrapper { position: relative; top: -20px; flex: 1; display: flex; justify-content: center; }
+    .center-btn {
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg, #ff2a5f, #ff003c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(255, 0, 60, 0.6);
+      border: 4px solid #0b0517;
+      text-decoration: none;
+      color: #fff;
+      font-size: 22px;
+    }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header Bar -->
+  <div class="header">
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div class="page-title">TopUp Order History</div>
+    <div style="width: 40px;"></div>
+  </div>
+
+  <!-- Status Filter Bar -->
+  <div class="filter-bar">
+    <div class="status-filters">
+      <button class="filter-btn active" onclick="filterStatus('All', this)">All</button>
+      <button class="filter-btn" onclick="filterStatus('Approved', this)">Approved</button>
+      <button class="filter-btn" onclick="filterStatus('Outflow', this)">Outflow</button>
+    </div>
+    <button class="refresh-btn" onclick="renderHistory()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+  </div>
+
+  <!-- Search Filter -->
+  <div class="search-box">
+    <input type="text" id="searchInput" class="search-input" placeholder="Search Game or Order ID..." onkeyup="renderHistory()">
+  </div>
+
+  <!-- History List Container -->
+  <div class="history-list" id="historyContainer"></div>
+</div>
+
+<!-- Modal Detail -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Order Detail</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">TRANSACTION ID</div>
+      <div class="detail-value" id="mId">#---</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">TITLE / TYPE</div>
+      <div class="detail-value" id="mTitle" style="color: #c084fc;">---</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">AMOUNT</div>
+      <div class="detail-value" id="mAmount" style="color: #4ade80;">0 MMK</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">DATE & TIME</div>
+      <div class="detail-value" id="mDate">---</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">STATUS</div>
+      <div><span class="status-badge" id="mStatus">Outflow</span></div>
+    </div>
+
+    <div class="slip-box" id="slipBox" style="display:none;">
+      <div class="detail-label" style="text-align: left; margin-bottom: 8px;">PAYMENT SLIP</div>
+      <img id="mSlip" class="slip-img" src="" alt="Payment Slip">
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation Bar -->
+<div class="bottom-nav-container">
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="order.html" class="nav-link active"><i class="fa-solid fa-clock-rotate-left"></i><span>Orders</span></a>
+    <div class="center-btn-wrapper">
+      <a href="order.html" class="center-btn"><i class="fa-solid fa-wallet"></i></a>
+    </div>
+    <a href="transfer.html" class="nav-link"><i class="fa-solid fa-paper-plane"></i><span>Transfer</span></a>
+    <a href="login.html" class="nav-link"><i class="fa-solid fa-user"></i><span>Account</span></a>
+  </nav>
+</div>
+
+<script>
+let currentStatus = 'All';
+
+function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem("atsx_current_user") || "null");
+  } catch(e) {
+    return null;
+  }
+}
+
+async function getHistoryData() {
+  try {
+    const user = getCurrentUser();
+    if (user && user.phone) {
+      const r = await fetch('/api/orders?phone=' + encodeURIComponent(user.phone));
+      const d = await r.json();
+      if (r.ok && d.ok) return d.orders || [];
+    }
+  } catch(e) {}
+  try {
+    const keys = ["atsx_topup_history", "topup_history", "orders"];
+    let allData = [];
+    keys.forEach(k => { const data = JSON.parse(localStorage.getItem(k) || "[]"); if (Array.isArray(data)) allData = allData.concat(data); });
+    return allData;
+  } catch (e) { return []; }
+}
+
+async function renderHistory() {
+  const user = getCurrentUser();
+  const rawData = await getHistoryData();
+  const container = document.getElementById('historyContainer');
+  const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+  container.innerHTML = '';
+
+  if (!user) {
+    container.innerHTML = '<div class="empty-state">ကျေးဇူးပြု၍ အကောင့် Login အရင်ဝင်ပါ</div>';
+    return;
+  }
+
+  // User ၏ Orders များကို စစ်ထုတ်ခြင်း
+  const userOrders = rawData.filter(item => {
+    if (!item.phone && !item.userId && !item.userPhone && !item.accountID) return true;
+    const matchPhone = (item.phone || item.userPhone) === user.phone;
+    const matchId = (item.userId || item.accountID) === (user.id || user.phone);
+    return matchPhone || matchId;
+  });
+
+  const formattedData = userOrders.map((item, index) => {
+    let amt = item.amount || item.price || item.total || 0;
+    amt = parseFloat(String(amt).replace(/[^0-9.]/g, '')) || 0;
+
+    let st = item.status || 'Outflow';
+    if (st.toLowerCase() === 'approved' || st.toLowerCase() === 'success') st = 'Approved';
+    else if (st.toLowerCase() === 'Outflow') st = 'Outflow';
+    else if (st.toLowerCase() === 'rejected') st = 'Rejected';
+
+    return {
+      id: item.id || item.orderId || ('ATS-' + (1000 + index)),
+      title: item.title || item.type || item.gameName || 'TopUp / Transfer',
+      amount: amt,
+      date: item.date || item.createdAt || item.time || new Date().toLocaleString(),
+      status: st,
+      image: item.image || item.slip || item.slipImg || ''
+    };
+  });
+
+  const filtered = formattedData.filter(item => {
+    const matchStatus = (currentStatus === 'All') || (item.status.toLowerCase() === currentStatus.toLowerCase());
+    const matchSearch = item.title.toLowerCase().includes(searchText) || item.id.toLowerCase().includes(searchText);
+    return matchStatus && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state">ငွေဖြည့် သို့မဟုတ် မှာယူမှု မှတ်တမ်းများ မရှိသေးပါ</div>';
+    return;
+  }
+
+  filtered.reverse().forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'history-card';
+    card.onclick = () => openModal(item);
+
+    card.innerHTML = `
+      <div class="card-left">
+        <div class="app-icon"><i class="fa-solid fa-receipt"></i></div>
+        <div class="card-info">
+          <div class="item-title">${item.title}</div>
+          <div class="date-text">${item.date}</div>
+          <div class="amount-text">${item.amount.toLocaleString()} MMK</div>
+        </div>
+      </div>
+      <div class="status-badge ${item.status}">${item.status}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function filterStatus(statusName, btn) {
+  currentStatus = statusName;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+function openModal(item) {
+  document.getElementById('mId').textContent = `#${item.id}`;
+  document.getElementById('mTitle').textContent = item.title;
+  document.getElementById('mAmount').textContent = `${item.amount.toLocaleString()} MMK`;
+  document.getElementById('mDate').textContent = item.date;
+  
+  const statusEl = document.getElementById('mStatus');
+  statusEl.textContent = item.status;
+  statusEl.className = `status-badge ${item.status}`;
+
+  const slipBox = document.getElementById('slipBox');
+  const slipImg = document.getElementById('mSlip');
+  
+  if (item.image) {
+    slipImg.src = item.image;
+    slipBox.style.display = 'block';
+  } else {
+    slipBox.style.display = 'none';
+  }
+
+  document.getElementById('detailModal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+window.addEventListener('DOMContentLoaded', renderHistory);
+</script>
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

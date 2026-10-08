@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Customer Service - AtsX Store</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#0d0614;color:#fff;font-family:system-ui,"Noto Sans Myanmar",sans-serif;padding:18px 14px}
+  .wrap{max-width:520px;margin:auto}
+  a{text-decoration:none;color:inherit}
+  .back{display:inline-block;padding:9px 12px;background:#ffffff10;border:1px solid #ffffff18;border-radius:12px;margin-bottom:20px}
+  .card{background:linear-gradient(145deg,#21122d,#130a1c);border:1px solid #a855f744;border-radius:22px;padding:22px}
+  
+  /* Header UI with Secret Admin Icon */
+  .card-header{display:flex;justify-content:space-between;align-items:center}
+  .brand{font-size:24px;font-weight:800;color:#c084fc}
+  .admin-secret-icon{color:rgba(255,255,255,0.25);font-size:14px;font-weight:bold;padding:4px 8px;border-radius:50%;transition:0.2s;user-select:none}
+  .admin-secret-icon:hover,.admin-secret-icon:active{color:#c084fc;background:rgba(255,255,255,0.1)}
+  
+  .muted{color:#bdb3c6;font-size:13px}
+  .contact{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;margin-top:12px;background:#ffffff08;border-radius:14px}
+  .btn{background:#a855f7;padding:9px 13px;border-radius:10px;font-weight:700}
+</style>
+  <script src="config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Home</a>
+  <div class="card">
+    <div class="card-header">
+      <div class="brand">Ats𝕏 Customer Service</div>
+      <!-- Secret Admin Link Icon (!) -->
+      <a href="admin.html" class="admin-secret-icon" title="Admin">!</a>
+    </div>
+    <p class="muted">Order, Top-up, Account နဲ့ပတ်သက်တဲ့ အကူအညီများအတွက် ဆက်သွယ်နိုင်ပါတယ်။</p>
+    <div class="contact">
+      <div><b>Telegram</b><div class="muted">@Atsofficialacc</div></div>
+      <a class="btn" href="https://t.me/Atsofficialacc" target="_blank" rel="noopener">Chat</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

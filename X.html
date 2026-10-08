@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AtsX Account - Bio Links</title>
+  <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', 'Padauk', sans-serif; }
+    
+    body { 
+      background: #090514; 
+      color: #ffffff;
+      min-height: 100vh; 
+      display: flex; 
+      justify-content: center; 
+      align-items: flex-start; 
+      padding: 20px 15px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background Neon Lighting FX */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(168,85,247,0.35) 0%, rgba(99,102,241,0) 70%);
+      filter: blur(50px);
+      z-index: 0;
+    }
+
+    .bio-container { 
+      width: 100%; 
+      max-width: 410px; 
+      text-align: center; 
+      position: relative; 
+      z-index: 1;
+    }
+
+    .top-bar { 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-start; 
+      width: 100%; 
+      margin-bottom: 15px; 
+    }
+
+    .back-btn { 
+      background: rgba(255, 255, 255, 0.08); 
+      border: 1px solid rgba(255, 255, 255, 0.15); 
+      width: 42px; 
+      height: 42px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      color: #fff; 
+      backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
+    }
+    .back-btn:active { transform: scale(0.9); background: rgba(168,85,247,0.3); }
+
+    /* Profile Glow Avatar */
+    .profile-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    
+    .profile-img { 
+      width: 95px; 
+      height: 95px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 3px solid #a855f7; 
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.6);
+      position: relative;
+      z-index: 2;
+    }
+
+    .username { 
+      font-size: 26px; 
+      font-weight: 700; 
+      margin-top: 12px; 
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #fff, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Glass Notice Box */
+    .notice-text { 
+      font-size: 13px; 
+      color: #d1d5db; 
+      line-height: 1.6; 
+      margin: 15px 5px 25px 5px; 
+      background: rgba(24, 13, 40, 0.7);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      border-radius: 16px;
+      padding: 12px 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .links-wrapper { display: flex; flex-direction: column; gap: 14px; }
+
+    /* Cyber Link Cards */
+    .link-card { 
+      background: rgba(24, 13, 40, 0.85); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      border-radius: 20px; 
+      padding: 10px 16px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      text-decoration: none; 
+      color: #ffffff; 
+      backdrop-filter: blur(12px);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .link-card:active { 
+      transform: scale(0.97); 
+      border-color: #a855f7;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    }
+
+    .link-left { display: flex; align-items: center; gap: 14px; flex-grow: 1; }
+
+    .icon-box { 
+      width: 44px; 
+      height: 44px; 
+      border-radius: 14px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      flex-shrink: 0; 
+      font-size: 20px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .link-title { font-size: 15px; font-weight: 600; text-align: left; }
+    .more-dots { color: #6b7280; font-size: 18px; }
+
+    /* Brand Custom Colors & Glows */
+    .bg-tiktok { background: #000000; border: 1px solid #333; color: #fff; }
+    .bg-telegram { background: linear-gradient(135deg, #2AABEE, #229ED9); color: white; }
+    .bg-facebook { background: linear-gradient(135deg, #1877F2, #0d65d9); color: white; }
+    .bg-youtube { background: linear-gradient(135deg, #FF0000, #cc0000); color: white; }
+    .bg-store { background: linear-gradient(135deg, #a855f7, #6366f1); color: white; box-shadow: 0 0 12px rgba(168, 85, 247, 0.5); }
+
+    /* Store Card Special Border */
+    .store-card {
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      background: linear-gradient(90deg, rgba(24, 13, 40, 0.9), rgba(45, 22, 77, 0.9));
+    }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <div class="bio-container">
+    <div class="top-bar">
+      <button id="backBtn" class="back-btn" onclick="history.back()">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+    </div>
+
+    <div class="profile-wrapper">
+      <img src="AtsX.jpg" alt="AtsX Profile" class="profile-img">
+    </div>
+    <div class="username">AtsX Official Acc</div>
+    
+    <div class="notice-text">
+      ⚠️ ရိုက်မရှာပါနဲ့ အတုတွေရှိလို့ သတိထားပေးပါ<br>
+      နှိပ်မရရင် ညာဘက်ထောင့်အပေါ်မှာ အစက်လေးသုံးစက် နှိပ်ပါ / <b>Open in browser</b> ကနေလာခဲ့ပါဗျ။
+    </div>
+
+    <div class="links-wrapper">
+      <a href="https://www.tiktok.com/@atsofficialacc?_r=1&_t=ZG-98jaeVHeFvd" class="link-card" target="_blank">
+        <div class="link-left">
+          <div class="icon-box bg-tiktok"><i class="fa-brands fa-tiktok"></i></div>
+          <div class="link-title">TikTok Account</div>
+        </div>
+        <div class="more-dots"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+      </a>
+
+      <a href="https://t.me/Atsofficialacc" class="link-card" target="_blank">
+        <div class="link-left">
+          <div class="icon-box bg-telegram"><i class="fa-solid fa-paper-plane"></i></div>
+          <div class="link-title">AtsX Official Telegram</div>
+        </div>
+        <div class="more-dots"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+      </a>
+
+      <a href="https://facebook.com" class="link-card" target="_blank">
+        <div class="link-left">
+          <div class="icon-box bg-facebook"><i class="fa-brands fa-facebook-f"></i></div>
+          <div class="link-title">Facebook Page</div>
+        </div>
+        <div class="more-dots"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+      </a>
+
+      <a href="https://youtube.com/@atsofficialacc?si=KP-DZmTzulnfZbA8" class="link-card" target="_blank">
+        <div class="link-left">
+          <div class="icon-box bg-youtube"><i class="fa-brands fa-youtube"></i></div>
+          <div class="link-title">YouTube Channel</div>
+        </div>
+        <div class="more-dots"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+      </a>
+
+      <a href="index.html" class="link-card store-card">
+        <div class="link-left">
+          <div class="icon-box bg-store"><i class="fa-solid fa-gem"></i></div>
+          <div class="link-title">Diamond & UC ဝယ်ယူရန်</div>
+        </div>
+        <div class="more-dots"><i class="fa-solid fa-chevron-right" style="color: #c084fc;"></i></div>
+      </a>
+    </div>
+  </div>
+
+
+<style id="atsx-account-name-limit">
+.atsx-name-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;z-index:99999;padding:20px}
+.atsx-name-box{width:min(92vw,420px);background:#130b2d;border:1px solid #6d3bd1;border-radius:18px;padding:20px;box-shadow:0 18px 50px rgba(0,0,0,.55)}
+.atsx-name-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:12px}
+.atsx-name-input{width:100%;box-sizing:border-box;background:#0b0620;color:#fff;border:1px solid #6d3bd1;border-radius:12px;padding:12px;font-size:16px;outline:none}
+.atsx-name-input:focus{border-color:#a987ff;box-shadow:0 0 0 3px rgba(139,91,230,.16)}
+.atsx-name-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.atsx-name-actions button{border:0;border-radius:10px;padding:10px 16px;font-weight:800}
+.atsx-name-cancel{background:#25144e;color:#d9c8ff}
+.atsx-name-ok{background:#7040d4;color:#fff}
+</style>
+<div class="atsx-name-overlay" id="atsxNameOverlay">
+  <div class="atsx-name-box">
+    <div class="atsx-name-title">အကောင့်နာမည်အသစ် ရိုက်ထည့်ပါ</div>
+    <input id="atsxNameInput" class="atsx-name-input" type="text" maxlength="20" autocomplete="off">
+    <div class="atsx-name-actions">
+      <button class="atsx-name-cancel" type="button" id="atsxNameCancel">CANCEL</button>
+      <button class="atsx-name-ok" type="button" id="atsxNameOk">OK</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const overlay=document.getElementById('atsxNameOverlay');
+  const input=document.getElementById('atsxNameInput');
+  const cancel=document.getElementById('atsxNameCancel');
+  const ok=document.getElementById('atsxNameOk');
+  window.atsxAccountNamePrompt=function(currentName){
+    input.value=(currentName||'').slice(0,20);
+    overlay.style.display='flex';
+    setTimeout(()=>{input.focus();input.select()},50);
+    return new Promise(resolve=>{
+      function done(value){overlay.style.display='none';cleanup();resolve(value)}
+      function yes(){done(input.value.trim().slice(0,20)||null)}
+      function no(){done(null)}
+      function key(e){if(e.key==='Enter'){e.preventDefault();yes()}else if(e.key==='Escape'){e.preventDefault();no()}}
+      function cleanup(){ok.removeEventListener('click',yes);cancel.removeEventListener('click',no);input.removeEventListener('keydown',key)}
+      ok.addEventListener('click',yes);cancel.addEventListener('click',no);input.addEventListener('keydown',key)
+    });
+  };
+})();
+</script>
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

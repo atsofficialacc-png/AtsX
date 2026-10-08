@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AtsX Admin - Dashboard</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;padding:20px 12px 60px;background:#120917;color:#fff;font-family:system-ui,-apple-system,sans-serif}
+  h2{color:#b47cff;text-align:center;margin-bottom:20px}
+  .section-title{color:#e2e8f0;font-size:16px;font-weight:bold;margin:25px 0 12px;border-bottom:1px solid #334155;padding-bottom:6px;display:flex;align-items:center;gap:8px}
+
+  /* Admin Content Lock UI */
+  #adminDashboardContent { display: none; }
+
+  /* Login Overlay Modal */
+  .login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #120917;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    padding: 20px;
+  }
+  .login-box {
+    background: #1e152e;
+    padding: 30px 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+  }
+  .login-box h3 { margin-top: 0; color: #b47cff; font-size: 20px; }
+  .login-box p { color: #aaa; font-size: 13px; margin-bottom: 20px; }
+  .login-input {
+    width: 100%;
+    padding: 12px;
+    background: #120917;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .login-btn {
+    width: 100%;
+    padding: 12px;
+    background: #a855f7;
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+  .login-btn:active { background: #9333ea; }
+
+  /* Search Box UI */
+  .search-container{margin-bottom:15px}
+  .user-search-input{width:100%;padding:11px 14px;background:#1e152e;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:13px;outline:none;transition:border-color 0.2s}
+  .user-search-input:focus{border-color:#a855f7}
+
+  /* User Cards UI */
+  .user-card{background:#1e152e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;margin-bottom:15px;box-shadow:0 4px 10px rgba(0,0,0,0.3)}
+  .user-info{margin-bottom:8px;font-size:14px;line-height:1.5;word-break:break-all}
+  .user-info span{color:#a855f7;font-weight:bold}
+  .pass-text{color:#f59e0b;font-weight:bold}
+  .btn-group{display:flex;gap:10px;margin-top:12px}
+  .btn{padding:8px 14px;border:0;border-radius:8px;font-weight:bold;cursor:pointer;color:#fff;flex:1}
+  .delete-user-btn{background:#ef4444}
+  .delete-user-btn:active{background:#dc2626}
+  .empty-msg{text-align:center;color:#aaa;padding:20px;font-size:14px;background:#1e152e;border-radius:10px}
+
+  /* Topup Orders Table UI */
+  .table-responsive{overflow-x:auto;background:#1e152e;border-radius:12px;border:1px solid rgba(255,255,255,0.1);margin-bottom:30px}
+  table{width:100%;border-collapse:collapse;text-align:left;font-size:12px}
+  th, td{padding:10px 8px;border-bottom:1px solid #334155;vertical-align:middle}
+  th{background:#2a1b3d;color:#cbd5e1;font-weight:bold;white-space:nowrap}
+  
+  /* Buttons & Badges */
+  .approve-btn{background:#22c55e;color:#fff;border:0;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:bold;margin-bottom:4px;font-size:11px}
+  .reject-btn{background:#ef4444;color:#fff;border:0;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:11px}
+  .delete-btn{background:#dc2626;color:#fff;border:0;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;margin-left:4px;display:inline-flex;align-items:center;justify-content:center}
+  
+  .badge-approved{color:#22c55e;font-weight:bold;font-size:11px}
+  .badge-rejected{color:#ef4444;font-weight:bold;font-size:11px}
+  
+  .action-container{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+
+  /* Image Modal Popup Styles */
+  .slip-img { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #444; cursor: pointer; transition: transform 0.2s; }
+  .slip-img:hover { transform: scale(1.08); }
+  
+  .image-modal {
+    display: none;
+    position: fixed;
+    z-index: 99999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .image-modal img {
+    max-width: 90%;
+    max-height: 85vh;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    object-fit: contain;
+  }
+  .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    color: #fff;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    background: rgba(0,0,0,0.5);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<!-- Login Lock Screen Modal -->
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-box">
+    <h3>🔒 Admin Access</h3>
+    <p>ကျေးဇူးပြု၍ Admin Password ထည့်ပါ</p>
+    <input type="password" id="adminPasswordInput" class="login-input" placeholder="Password ရိုက်ထည့်ပါ..." onkeydown="checkKey(event)">
+    <button class="login-btn" onclick="verifyPassword()">Access Dashboard</button>
+  </div>
+</div>
+
+<!-- Main Dashboard Content -->
+<div id="adminDashboardContent">
+  <h2>AtsX Admin Dashboard</h2>
+
+  <!-- 1. Topup Request Management Section -->
+  <div class="section-title">📥 ငွေဖြည့်တောင်းဆိုမှုများ (Topup Orders)</div>
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User Info</th>
+          <th>Amount</th>
+          <th>Slip</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="adminOrderList">
+        <!-- Data Will Render Here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 2. User Accounts Management Section -->
+  <div class="section-title">👥 အသုံးပြုသူ အကောင့်များ (User Accounts)</div>
+
+  <!-- User Search Bar -->
+  <div class="search-container">
+    <input type="text" id="userSearchInput" class="user-search-input" onkeyup="filterUsers()" placeholder="🔍 Account Name, ID သို့မဟုတ် Phone Number ဖြင့် ရှာရန်...">
+  </div>
+
+  <div id="userListContainer"></div>
+
+  <!-- Fullscreen Image Modal Popup -->
+  <div id="imageModal" class="image-modal" onclick="closeModal()">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <img id="modalImage" src="" alt="Zoomed Slip">
+  </div>
+</div>
+
+<script>
+// -------------------------------------------------------------
+// PASSWORD SECURITY SYSTEM
+// -------------------------------------------------------------
+const ADMIN_PASS = "Password7AtsX";
+
+function verifyPassword() {
+  const inputPass = document.getElementById("adminPasswordInput").value;
+  if (inputPass === ADMIN_PASS) {
+    sessionStorage.setItem("atsx_admin_logged_in", "true");
+    unlockAdminPanel();
+  } else {
+    alert("Password မှားယွင်းနေပါသည်!");
+  }
+}
+
+function checkKey(event) {
+  if (event.key === "Enter") {
+    verifyPassword();
+  }
+}
+
+async function unlockAdminPanel() {
+  document.getElementById("loginOverlay").style.display = "none";
+  document.getElementById("adminDashboardContent").style.display = "block";
+  try {
+    const localUsers = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    if (localUsers.length) await fetch('/api/sync-users', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({users:localUsers})});
+  } catch(e) {}
+  renderUsers();
+  loadTopupOrders();
+}
+
+function checkAdminAuth() {
+  const isLoggedIn = sessionStorage.getItem("atsx_admin_logged_in");
+  if (isLoggedIn === "true") {
+    unlockAdminPanel();
+  } else {
+    document.getElementById("loginOverlay").style.display = "flex";
+    document.getElementById("adminDashboardContent").style.display = "none";
+  }
+}
+
+// -------------------------------------------------------------
+// IMAGE MODAL FUNCTIONS (Zoom Slip)
+// -------------------------------------------------------------
+function openModal(imgSrc) {
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  if (modal && modalImg) {
+    modalImg.src = imgSrc;
+    modal.style.display = 'flex';
+  }
+}
+
+function closeModal() {
+  const modal = document.getElementById('imageModal');
+  if (modal) modal.style.display = 'none';
+}
+
+// Custom Alert System
+function showAlert(message) {
+  alert(message);
+}
+
+// -------------------------------------------------------------
+// INITIALIZATION & REALTIME LISTENERS
+// -------------------------------------------------------------
+window.addEventListener('DOMContentLoaded', () => {
+  checkAdminAuth();
+});
+
+window.addEventListener('pageshow', () => {
+  checkAdminAuth();
+});
+
+window.addEventListener('storage', (e) => {
+  if (sessionStorage.getItem("atsx_admin_logged_in") === "true") {
+    if (e.key === 'atsx_topup_orders') {
+      loadTopupOrders();
+    }
+    if (e.key === 'atsx_users') {
+      renderUsers();
+    }
+  }
+});
+
+// -------------------------------------------------------------
+// 1. TOPUP ORDERS MANAGEMENT FUNCTIONS
+// -------------------------------------------------------------
+async function loadTopupOrders() {
+  const container = document.getElementById("adminOrderList");
+  if (!container) return;
+  try {
+    const r = await fetch('/api/orders');
+    const data = await r.json();
+    if (!r.ok || !data.ok) throw new Error(data.error || 'API error');
+    const topupOrders = data.orders || [];
+    localStorage.setItem('atsx_topup_orders', JSON.stringify(topupOrders));
+    if (!topupOrders.length) {
+      container.innerHTML = "<tr><td colspan='6' style='text-align:center;padding:20px;color:#aaa;'>ငွေဖြည့်တောင်းဆိုမှု မရှိသေးပါ</td></tr>";
+      return;
+    }
+    let html = "";
+    topupOrders.forEach(order => {
+      let statusUI = order.status === 'Pending'
+        ? `<button class="approve-btn" onclick="approveOrder('${order.id}')">Approve</button><button class="reject-btn" onclick="rejectOrder('${order.id}')">Reject</button>`
+        : (order.status === 'Approved' ? `<span class="badge-approved">✓ အောင်မြင်ပါပြီ</span>` : `<span class="badge-rejected">✕ ငြင်းပယ်ထားသည်</span>`);
+      html += `<tr><td><b style="font-size:11px">${order.id}</b></td><td>${order.userName || 'Guest'}<br><small style="color:#aaa">${order.userPhone || ''}</small></td><td style="color:#22c55e;font-weight:bold;">${Number(order.amount).toLocaleString()} MMK</td><td>${order.image ? `<img src="${order.image}" class="slip-img" onclick="openModal('${order.image}')" alt="Slip">` : 'No Image'}</td><td><small style="font-size:10px;color:#aaa">${order.date || ''}</small></td><td><div class="action-container">${statusUI}<button class="delete-btn" title="Delete History" onclick="deleteOrder('${order.id}')">🗑️</button></div></td></tr>`;
+    });
+    container.innerHTML = html;
+  } catch (e) {
+    console.error(e);
+    container.innerHTML = "<tr><td colspan='6' style='text-align:center;padding:20px;color:#f87171;'>Server မချိတ်နိုင်ပါ</td></tr>";
+  }
+}
+
+async function approveOrder(orderId) {
+  try {
+    const r = await fetch('/api/orders/' + encodeURIComponent(orderId) + '/approve', {method:'POST', headers:{'x-atsx-admin-key': prompt('Server Admin Key ထည့်ပါ') || ''}});
+    const data = await r.json();
+    if (!r.ok || !data.ok) throw new Error(data.error || 'Approve failed');
+    showAlert("ငွေဖြည့်သွင်းမှုကို အတည်ပြုပြီးပါပြီ။ User Balance ထဲသို့ ငွေရောက်သွားပါပြီ။");
+    loadTopupOrders(); renderUsers();
+  } catch(e) { showAlert('Approve မအောင်မြင်ပါ: ' + e.message); }
+}
+
+async function rejectOrder(orderId) {
+  if (!confirm("ဒီငွေဖြည့်တောင်းဆိုမှုကို ငြင်းပယ်မှာ သေချာပါသလား?")) return;
+  try {
+    const r = await fetch('/api/orders/' + encodeURIComponent(orderId) + '/reject', {method:'POST', headers:{'x-atsx-admin-key': prompt('Server Admin Key ထည့်ပါ') || ''}});
+    const data = await r.json();
+    if (!r.ok || !data.ok) throw new Error(data.error || 'Reject failed');
+    showAlert("ငွေဖြည့်တောင်းဆိုမှုကို ငြင်းပယ်လိုက်ပါပြီ။"); loadTopupOrders();
+  } catch(e) { showAlert('Reject မအောင်မြင်ပါ: ' + e.message); }
+}
+
+async function deleteOrder(orderId) {
+  if (!confirm("ဒီ Topup History ကို အပြီးတိုင် ဖျက်မှာ သေချာပါသလား?")) return;
+  try {
+    const r = await fetch('/api/orders/' + encodeURIComponent(orderId), {method:'DELETE', headers:{'x-atsx-admin-key': prompt('Server Admin Key ထည့်ပါ') || ''}});
+    const data = await r.json();
+    if (!r.ok || !data.ok) throw new Error(data.error || 'Delete failed');
+    loadTopupOrders();
+  } catch(e) { showAlert('Delete မအောင်မြင်ပါ: ' + e.message); }
+}
+
+
+// -------------------------------------------------------------
+// 2. USER ACCOUNTS MANAGEMENT & DELETE USER FUNCTIONS
+// -------------------------------------------------------------
+async function renderUsers(filteredUsers = null) {
+  const container = document.getElementById('userListContainer');
+  if (!container) return;
+
+  let users = filteredUsers !== null ? filteredUsers : JSON.parse(localStorage.getItem("atsx_users") || "[]");
+  if (filteredUsers === null) {
+    try { const r = await fetch('/api/users'); const d = await r.json(); if (r.ok && d.ok) users = d.users || users; } catch(e) {}
+  }
+
+  if (users.length === 0) {
+    container.innerHTML = '<div class="empty-msg">အကောင့် မတွေ့ရှိပါ။</div>';
+    return;
+  }
+
+  let html = '';
+  users.forEach((user) => {
+    const allUsers = JSON.parse(localStorage.getItem("atsx_users") || "[]");
+    const originalIndex = allUsers.findIndex(u => String(u.id) === String(user.id) || String(u.phone) === String(user.phone));
+
+    html += `
+      <div class="user-card">
+        <div class="user-info"><span>Account Name:</span> ${user.name || 'N/A'}</div>
+        <div class="user-info"><span>Account ID:</span> ${user.id || 'N/A'}</div>
+        <div class="user-info"><span>Phone Number:</span> ${user.phone || 'N/A'}</div>
+        <div class="user-info"><span>Password:</span> <span class="pass-text">${user.password || 'N/A'}</span></div>
+        <div class="user-info"><span>Balance:</span> <b style="color:#22c55e">${(user.balance || 0).toLocaleString()} MMK</b></div>
+        
+        <div class="btn-group">
+          <button class="btn delete-user-btn" onclick="deleteUserAccount(${originalIndex}, '${user.name || 'User'}')">
+            🗑️ Delete Account
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function filterUsers() {
+  const query = document.getElementById('userSearchInput').value.toLowerCase().trim();
+  const users = JSON.parse(localStorage.getItem("atsx_users") || "[]");
+
+  if (!query) {
+    renderUsers(users);
+    return;
+  }
+
+  const filtered = users.filter(user => 
+    (user.name && user.name.toLowerCase().includes(query)) ||
+    (user.id && String(user.id).toLowerCase().includes(query)) ||
+    (user.phone && String(user.phone).toLowerCase().includes(query))
+  );
+
+  renderUsers(filtered);
+}
+
+function deleteUserAccount(index, userName) {
+  if (index === -1) return;
+
+  if (!confirm(`"${userName}" ရဲ့ အကောင့်ကို အပြီးတိုင် ဖျက်ပစ်မှာ သေချာပါသလား?`)) {
+    return;
+  }
+
+  let users = JSON.parse(localStorage.getItem("atsx_users") || "[]");
+  users.splice(index, 1);
+  localStorage.setItem("atsx_users", JSON.stringify(users));
+
+  showAlert("အကောင့်ကို အပြီးတိုင် ဖျက်လိုက်ပါပြီ။");
+  filterUsers();
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product Detail - AtsX Store</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      background: #0d0614; 
+      color: #fff; 
+      font-family: system-ui, "Noto Sans Myanmar", sans-serif; 
+      padding: 18px 14px 90px; 
+    }
+    .wrap { max-width: 600px; margin: auto; }
+    a { text-decoration: none; color: inherit; }
+    
+    .back { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      padding: 9px 16px; 
+      background: #ffffff10; 
+      border: 1px solid #ffffff18; 
+      border-radius: 12px; 
+      margin-bottom: 18px; 
+      font-size: 14px;
+      transition: 0.2s;
+    }
+    .back:active { transform: scale(0.95); }
+
+    .card { 
+      background: #171020; 
+      border: 1px solid #ffffff14; 
+      border-radius: 20px; 
+      overflow: hidden; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .photo { 
+      width: 100%; 
+      aspect-ratio: 1/1; 
+      object-fit: cover; 
+      background: #21152c; 
+      display: block;
+    }
+    .body { padding: 20px; }
+    .tag { color: #c084fc; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    h2 { font-size: 20px; line-height: 1.4; margin-bottom: 10px; }
+    .price { font-size: 24px; font-weight: 800; color: #fb923c; margin: 8px 0 14px; }
+    .muted { color: #bdb3c6; font-size: 13px; line-height: 1.5; }
+    
+    .btn { 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 10px; 
+      background: linear-gradient(135deg, #a855f7, #7c3aed); 
+      color: #fff; 
+      padding: 14px; 
+      border-radius: 14px; 
+      margin-top: 20px; 
+      font-weight: 700; 
+      font-size: 16px;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+      transition: 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="back" href="Accessories.html">
+    <i class="fa-solid fa-arrow-left"></i> Shop
+  </a>
+  <div id="app"></div>
+</div>
+
+<script>
+// ID ၁ မှ ၃၀ အထိ ပစ္စည်းများ၏ အချက်အလက်များ [အမည်၊ ဈေးနှုန်း၊ ပုံလင့်ခ်]
+const products = {
+  1: ["Cross-border new fashion simple...", "19,200", "freefire.jpg"],
+  2: ["Men's cargo shorts, elastic, solid color...", "14,500", "photo2.jpg"],
+  3: ["2025 Summer New Men's Linen Collar...", "18,432", "photo3.jpg"],
+  4: ["2025 New Summer Men's Ice-Silk Cool...", "27,580", "photo4.jpg"],
+  5: ["Short-sleeved M-shirt Summer...", "22,964", "photo5.jpg"],
+  6: ["New Chinese Style National Style...", "21,428", "photo6.jpg"],
+  7: ["Casual Slim Fit Cotton T-Shirt...", "16,000", "photo7.jpg"],
+  8: ["Breathable Running Sport Shoes...", "35,000", "photo8.jpg"],
+  9: ["Classic Denim Jacket Outerwear...", "42,000", "photo9.jpg"],
+  10: ["Minimalist Leather Wrist Watch...", "28,500", "photo10.jpg"],
+  11: ["Streetwear Oversized Hoodie...", "25,000", "photo11.jpg"],
+  12: ["Stylish Polarized Sunglasses...", "12,000", "photo12.jpg"],
+  13: ["Waterproof Travel Backpack...", "31,200", "photo13.jpg"],
+  14: ["Comfortable Sweatpants Elastic...", "18,000", "photo14.jpg"],
+  15: ["Vintage Canvas Shoulder Bag...", "22,500", "photo15.jpg"],
+  16: ["Wireless Bluetooth Earbuds...", "29,900", "photo16.jpg"],
+  17: ["Summer Beach Printed Shirt...", "17,500", "photo17.jpg"],
+  18: ["Unisex Cotton Baseball Cap...", "8,500", "photo18.jpg"],
+  19: ["Smart Fitness Tracker Band...", "38,000", "photo19.jpg"],
+  20: ["Formal Slim Fit Trousers...", "26,000", "photo20.jpg"],
+  21: ["Soft Fleece Winter Beanie...", "7,200", "photo21.jpg"],
+  22: ["Casual Leather Belt Metal Buckle...", "11,000", "photo22.jpg"],
+  23: ["Outdoor Hiking Cargo Pants...", "33,000", "photo23.jpg"],
+  24: ["Knitted Long Sleeve Sweater...", "24,800", "photo24.jpg"],
+  25: ["Classic Oxford Dress Shoes...", "45,000", "photo25.jpg"],
+  26: ["Lightweight Windbreaker Jacket...", "29,000", "photo26.jpg"],
+  27: ["Casual Canvas Sneakers Low Top...", "21,000", "photo27.jpg"],
+  28: ["Sports Gym Duffel Bag...", "27,000", "photo28.jpg"],
+  29: ["Striped Cotton Polo Shirt...", "19,800", "photo29.jpg"],
+  30: ["Thermal Underwear Set Winter...", "23,500", "photo30.jpg"]
+};
+
+// URL မှ id ကို ယူခြင်း
+const id = new URLSearchParams(location.search).get("id") || "1";
+const p = products[id] || products[1];
+
+// UI တည်ဆောက်ခြင်း
+document.getElementById("app").innerHTML = `
+  <div class="card">
+    <img class="photo" src="${p[2]}" alt="${p[0]}" onerror="this.src='https://picsum.photos/600?random=${id}'">
+    <div class="body">
+      <div class="tag"><i class="fa-solid fa-gem"></i> AtsX Accessories</div>
+      <h2>${p[0]}</h2>
+      <div class="price">${p[1]} MMK</div>
+      <p class="muted">မှာယူလိုပါက ဆက်သွယ်ပေးပါ။</p>
+      <a class="btn" href="https://t.me/atsxacc" target="_blank">
+        <i class="fa-solid fa-cart-shopping"></i> မှာယူရန်
+      </a>
+    </div>
+  </div>
+`;
+</script>
+
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

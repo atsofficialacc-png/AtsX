@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0d0614">
+<meta name="description" content="AtsX Store - MLBB Diamond & PUBG UC">
+<link rel="manifest" href="manifest.json">
+<title>AtsX Store</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{background:#0d0614;color:#fff;font-family:system-ui,-apple-system,"Noto Sans Myanmar",sans-serif;padding:15px 12px 110px}
+button{font:inherit;cursor:pointer}
+
+/* Top Header Bar UI */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.brand strong{font-size:20px;color:#c084fc}.brand span{font-size:12px;opacity:.8;margin-left:5px}
+.wallet-badge{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:8px}
+.wallet-badge span{color:#4ade80;font-weight:bold}
+.add-btn{background:#a855f7;color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-weight:bold;font-size:14px}
+
+/* VIP Glowing Office Banner */
+.office-vip-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.6), rgba(15, 7, 32, 0.9));
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  border-radius: 20px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.office-vip-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.install-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1;
+}
+
+.app-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 2px solid rgba(168, 85, 247, 0.6);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.office-title-box b {
+  font-size: 14px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.office-title-box .badge-verify {
+  color: #38bdf8;
+  font-size: 12px;
+}
+
+.office-title-box .small {
+  font-size: 11px;
+  color: #c084fc;
+  margin-top: 2px;
+}
+
+.vip-btn {
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  color: #fff;
+  border: 0;
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+  z-index: 1;
+  transition: transform 0.2s;
+}
+
+.vip-btn:active {
+  transform: scale(0.94);
+}
+
+/* App Install Section */
+.install{background:#180d28;border:1px solid #2d164d;border-radius:16px;padding:12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.install-btn{background:#6366f1;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:bold;text-decoration:none;display:inline-block}
+
+/* Search Bar Component */
+.search-box{
+  position:relative;
+  margin-bottom:15px;
+}
+.search-input{
+  width:100%;
+  background:#180d28;
+  border:1px solid #2d164d;
+  border-radius:14px;
+  padding:12px 14px 12px 42px;
+  color:#fff;
+  font-size:13px;
+  outline:none;
+  transition:0.2s;
+}
+.search-input:focus{
+  border-color:#a855f7;
+  box-shadow:0 0 10px rgba(168,85,247,0.2);
+}
+.search-icon{
+  position:absolute;
+  left:15px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#a855f7;
+  font-size:14px;
+}
+
+/* Menu List Section */
+.menu{background:#180d28;border:1px solid #2d164d;border-radius:16px;padding:12px 16px;margin-bottom:15px}
+.menu-item{display:flex;gap:10px;align-items:center;padding:8px 0;font-size:14px;color:#fff;text-decoration:none}
+.divider{border:0;border-top:1px solid rgba(255,255,255,0.08)}
+
+/* Section Title */
+.title{font-size:15px;font-weight:bold;margin:15px 0 10px;color:#c084fc;display:flex;align-items:center;gap:8px}
+
+/* 3-Column Game Grid UI */
+.game-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px}
+.game-card{background:#180d28;border:1px solid #2d164d;border-radius:14px;padding:8px;text-align:center;display:flex;flex-direction:column;justify-content:space-between;transition:0.2s}
+.game-card:hover{border-color:#a855f7;box-shadow:0 0 12px rgba(168,85,247,0.3)}
+.game-img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;margin-bottom:6px;background:#2d164d}
+.game-title{font-size:11px;font-weight:bold;color:#e2d9f3;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topup-btn{background:linear-gradient(135deg, #6b21a8, #4c1d95);color:#d8b4fe;border:1px solid rgba(168,85,247,0.4);border-radius:8px;padding:6px 0;font-size:11px;font-weight:bold;text-decoration:none;display:block}
+
+/* Navigation Dock Styling */
+.bottom-nav-container {
+  position: fixed;
+  bottom: 15px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 9999;
+  padding: 0 12px;
+  pointer-events: none;
+}
+
+.bottom-nav {
+  pointer-events: auto;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: 68px;
+  background: rgba(20, 10, 35, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 35px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  flex: 1;
+  transition: all 0.3s ease;
+  gap: 3px;
+}
+
+.nav-link i { font-size: 18px; }
+.nav-link.active { color: #c084fc; }
+.nav-link.active i { color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); }
+
+.center-btn-wrapper {
+  position: relative;
+  top: -22px;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.center-btn {
+  width: 62px;
+  height: 62px;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.8);
+  border: 4px solid #0d0614;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.center-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.toast{position:fixed;left:50%;bottom:95px;transform:translateX(-50%) translateY(20px);background:#21152f;color:#fff;padding:12px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;box-shadow:0 8px 25px #0005;white-space:nowrap;z-index:10000}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="header">
+    <div class="brand"><strong>Ats𝕏</strong><span>STORE</span></div>
+    <div class="wallet-badge">
+      💳 <span id="walletBalanceText">0</span> ks
+      <a href="topup.html" class="add-btn">+</a>
+    </div>
+  </header>
+
+  <!-- AtsX Office Acc -->
+  <section class="office-vip-card">
+      <div class="install-left">
+          <img src="AtsX.jpg" alt="App Icon" class="app-icon">
+          <div class="office-title-box">
+              <b>AtsX Office Acc <i class="fa-solid fa-circle-check badge-verify"></i></b>
+              <div class="small">ချစ်တယ်ကတော့ လူတိုင်းပြောတတ်တယ် တကယ်တမ်း အတွေးမလွန်အောင်<br> ထားနိုင်ဖို့တော့ ခက်ခဲကြတယ်မလား..။</div>
+          </div>
+      </div>
+      <a href="X.html" class="vip-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> AtsX Acc</a>
+  </section>
+
+  <!-- App Install Section -->
+  <section class="install">
+      <div class="install-left">
+          <img src="app.jpg" alt="App Icon" class="app-icon" style="width:40px;height:40px;border-radius:10px;">
+          <div>
+              <b style="font-size:13px;">AtsX Store App</b>
+              <div class="small" style="font-size:11px;opacity:.8;">Fast, secure & better</div>
+          </div>
+      </div>
+      <button id="installBtn" class="install-btn" onclick="installApp()">Install ↓</button>
+  </section>
+
+  <!-- Live Search Bar -->
+  <div class="search-box">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" id="searchInput" class="search-input" placeholder="Search games, products..." onkeyup="filterGames()">
+  </div>
+
+  <!-- Menu List -->
+  <section class="menu">
+    <a href="mlbborpubg.html" class="menu-item">🔍 <span>Mlbb & pubg Acc ကြည့်ရန်</span></a>
+    <hr class="divider">
+    <a href="Accessories.html" class="menu-item">🛍️ <span>Search Gaming Accessories & Outfit more ᯓ➤</span></a>
+  </section>
+
+  <!-- Games Section Title -->
+  <div class="title"><i class="fa-solid fa-gamepad"></i> AVAILABLE GAMES</div>
+
+  <!-- 3-Column Games Display Grid -->
+  <div class="game-grid" id="gameGrid">
+    <div class="game-card">
+      <img src="mlbb.jpg" class="game-img" alt="MLBB">
+      <div class="game-title">Mobile Legends</div>
+      <a href="mlbb.html" class="topup-btn">Top Up</a>
+    </div>
+    <div class="game-card">
+      <img src="pubg.jpg" class="game-img" alt="PUBG Mobile">
+      <div class="game-title">PUBG Mobile</div>
+      <a href="PUBG.html" class="topup-btn">Top Up</a>
+    </div>
+    <div class="game-card">
+      <img src="honor.jpg" class="game-img" alt="Honor of Kings">
+      <div class="game-title">Honor of Kings</div>
+      <a href="honor.html" class="topup-btn">Top Up</a>
+    </div>
+    <div class="game-card">
+      <img src="freefire.jpg" class="game-img" alt="Free Fire">
+      <div class="game-title">Free Fire</div>
+      <a href="freefire.html" class="topup-btn">Top Up</a>
+    </div>
+    <div class="game-card">
+      <img src="Magic.jpg" class="game-img" alt="Magic Chess">
+      <div class="game-title">Magic Chess</div>
+      <a href="gogo.html" class="topup-btn">Top Up</a>
+    </div>
+    <div class="game-card">
+      <img src="gangster.jpg" class="game-img" alt="Gangstar Mirage">
+      <div class="game-title">Gangstar Mirage</div>
+      <a href="Gangstar-Mirage.html" class="topup-btn">Top Up</a>
+    </div>
+    <div class="game-card">
+      <img src="telegram.jpg" class="game-img" alt="Telegram">
+      <div class="game-title">Telegram</div>
+      <a href="tg.html" class="topup-btn">Top Up</a>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- Curved Bottom Navigation Dock -->
+  <div class="bottom-nav-container">
+    <nav class="bottom-nav">
+      <a href="index.html" class="nav-link active">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="order.html" class="nav-link">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span>Orders</span>
+      </a>
+      <div class="center-btn-wrapper">
+        <a href="topup.html" class="center-btn">
+          <img src="Wallet.jpg" alt="Wallet">
+        </a>
+      </div>
+      <a href="transfer.html" class="nav-link">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>Transfer</span>
+      </a>
+      <a href="login.html" class="nav-link">
+        <i class="fa-solid fa-user"></i>
+        <span>Account</span>
+      </a>
+    </nav>
+  </div>
+
+<script>
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  if (toast) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); }, 2500);
+  }
+}
+
+function filterGames() {
+  const input = document.getElementById('searchInput').value.toLowerCase();
+  const cards = document.querySelectorAll('#gameGrid .game-card');
+  
+  cards.forEach(card => {
+    const title = card.querySelector('.game-title').textContent.toLowerCase();
+    if (title.includes(input)) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+function loadWalletBalance() {
+  const currentUser = JSON.parse(localStorage.getItem("atsx_current_user") || "null");
+  const users = JSON.parse(localStorage.getItem("atsx_users") || "[]");
+  const walletElement = document.getElementById("walletBalanceText");
+  if (!walletElement) return;
+
+  if (currentUser) {
+    const updatedUser = users.find(u => u.phone === currentUser.phone) || currentUser;
+    walletElement.textContent = (updatedUser.balance || 0).toLocaleString();
+  } else {
+    walletElement.textContent = "0";
+  }
+}
+
+let deferredInstallPrompt = null;
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  const btn = document.getElementById("installBtn");
+  if (btn) btn.style.display = "inline-flex";
+});
+
+async function installApp() {
+  if (!deferredInstallPrompt) {
+    showToast("ဒီ Browser မှာ Install option မပေါ်သေးပါ");
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  if (choice && choice.outcome === "accepted") {
+    showToast("AtsX Store ကို Install လုပ်နေပါပြီ");
+  }
+}
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
+window.addEventListener('DOMContentLoaded', loadWalletBalance);
+window.addEventListener('pageshow', loadWalletBalance);
+</script>
+
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

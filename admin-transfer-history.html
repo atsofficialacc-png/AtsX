@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Transfer History</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f4f7fa; color: #333; padding: 15px 10px; }
+    
+    .container { max-width: 100%; margin: auto; background: white; padding: 16px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; margin-bottom: 12px; gap: 10px; }
+    h2 { font-size: 18px; color: #673ab7; margin: 0; }
+    .back-btn { background: #673ab7; color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: bold; white-space: nowrap; }
+    
+    .subtitle { color: #666; font-size: 12px; margin-bottom: 15px; }
+
+    /* Search Box Style */
+    .search-box { margin-bottom: 15px; display: flex; gap: 8px; }
+    .search-input { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    .search-input:focus { border-color: #673ab7; }
+
+    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    
+    table { width: 100%; border-collapse: collapse; min-width: 550px; font-size: 13px; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; }
+    th { background: #f8f9fc; color: #43208e; font-weight: bold; white-space: nowrap; }
+    
+    .user-name { font-weight: bold; color: #222; }
+    .amount-out { color: #d32f2f; font-weight: bold; white-space: nowrap; }
+    .tx-no { font-size: 10px; background: #f0eafc; color: #673ab7; padding: 2px 5px; border-radius: 4px; font-weight: bold; display: inline-block; margin-top: 3px; }
+    .no-data { text-align: center; color: #888; padding: 30px; }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h2>Admin Transfer History</h2>
+    <a href="admin.html" class="back-btn">← Admin Dashboard</a>
+  </div>
+  
+  <div class="subtitle">အသုံးပြုသူများ အချင်းချင်း ငွေလွှဲပြောင်းထားသော မှတ်တမ်းအပြည့်အစုံ</div>
+
+  <!-- Search Bar -->
+  <div class="search-box">
+    <input type="text" id="searchInput" class="search-input" onkeyup="filterTransfers()" placeholder="🔍 TxNo, Sender, Receiver သို့မဟုတ် Note ဖြင့် ရှာရန်...">
+  </div>
+
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>စဉ်</th>
+          <th>အချိန်</th>
+          <th>Sender (ငွေလွှဲသူ)</th>
+          <th>Receiver (ငွေလက်ခံသူ)</th>
+          <th>Amount (ပမာဏ)</th>
+          <th>Note / TxNo</th>
+        </tr>
+      </thead>
+      <tbody id="adminTransferList">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let formattedRecords = []; // Global Variable အဖြစ် သိမ်းဆည်းထားမည်
+
+function loadAdminTransfers() {
+  const allHistory = JSON.parse(localStorage.getItem('atsx_topup_history') || "[]");
+  const users = JSON.parse(localStorage.getItem('atsx_users') || "[]");
+
+  // Outflow သို့မဟုတ် "Transfer To" ပါသည့် ငွေလွှဲမှတ်တမ်းများကို စစ်ထုတ်မည်
+  const transferRecords = allHistory.filter(item => 
+    item.type === 'outflow' || 
+    (item.title && item.title.toLowerCase().includes('transfer to'))
+  );
+
+  // Filter လုပ်ရန် အချက်အလက်များကို တည်ဆောက်ထားမည်
+  formattedRecords = transferRecords.map((item, index) => {
+    const senderObj = users.find(u => String(u.id) === String(item.userId) || String(u.phone) === String(item.userId));
+    const senderName = senderObj ? `${senderObj.name || 'User'} (${item.userId})` : item.userId || 'Unknown Sender';
+    
+    let receiverDisplay = item.target || 'Unknown Receiver';
+    if (item.receiverId && !receiverDisplay.includes(`(${item.receiverId})`)) {
+      receiverDisplay = `${receiverDisplay} (${item.receiverId})`;
+    } else if (!receiverDisplay.includes('(')) {
+      const recObj = users.find(u => u.name && item.target && item.target.includes(u.name));
+      if (recObj) {
+        receiverDisplay = `${recObj.name || 'User'} (${recObj.id || recObj.phone})`;
+      }
+    }
+
+    let displayAmount = item.amount || '0';
+    if (!displayAmount.includes('Ks') && !displayAmount.includes('MMK')) {
+      displayAmount += ' Ks';
+    }
+
+    return {
+      index: index + 1,
+      time: item.time || '-',
+      sender: senderName,
+      receiver: receiverDisplay,
+      amount: displayAmount,
+      note: item.note || '-',
+      txNo: item.txNo || 'Transfer'
+    };
+  });
+
+  renderTable(formattedRecords);
+}
+
+// Table ကို Render ရိုက်ပေးသည့် Function
+function renderTable(records) {
+  const tbody = document.getElementById('adminTransferList');
+
+  if (records.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="no-data">မှတ်တမ်း မတွေ့ရှိပါ။</td></tr>`;
+    return;
+  }
+
+  let html = '';
+  records.forEach((item, idx) => {
+    html += `
+      <tr>
+        <td>${idx + 1}</td>
+        <td><small style="color:#666;">${item.time}</small></td>
+        <td><span class="user-name">${item.sender}</span></td>
+        <td><span class="user-name" style="color: #673ab7;">${item.receiver}</span></td>
+        <td class="amount-out">${item.amount}</td>
+        <td>
+          <small>${item.note}</small><br>
+          <span class="tx-no">${item.txNo}</span>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+// Search Bar Filter ပြုလုပ်သည့် Function
+function filterTransfers() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  if (!query) {
+    renderTable(formattedRecords);
+    return;
+  }
+
+  const filtered = formattedRecords.filter(item => 
+    item.txNo.toLowerCase().includes(query) ||
+    item.sender.toLowerCase().includes(query) ||
+    item.receiver.toLowerCase().includes(query) ||
+    item.note.toLowerCase().includes(query) ||
+    item.amount.toLowerCase().includes(query)
+  );
+
+  renderTable(filtered);
+}
+
+window.addEventListener('DOMContentLoaded', loadAdminTransfers);
+</script>
+
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

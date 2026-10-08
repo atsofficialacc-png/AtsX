@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order History - Game Shop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{background:#0d0614;color:#fff;font-family:system-ui,-apple-system,"Noto Sans Myanmar",sans-serif;padding:15px 12px 110px}
+
+/* Orders စာမျက်နှာတစ်ပြင်လုံး Desktop Site မှာပါ အပြည့်ဆန့်ထွက်သွားစေရန် max-width ကို 100% သို့ ပြောင်းထားပါသည် */
+.container{width:100%;max-width:100%;margin:auto;padding:0 10px;}
+
+/* Header Bar */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;background:#180d28;padding:12px 16px;border:1px solid #2d164d;border-radius:16px}
+.home-btn{background:#2d164d;border:1px solid rgba(168,85,247,0.4);color:#fff;padding:6px 12px;border-radius:10px;text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px;transition:0.2s}
+.home-btn:active{transform:scale(0.95)}
+.nav-title{font-weight:bold;font-size:15px;color:#c084fc;letter-spacing:0.5px}
+
+.desc-text{font-size:13px;color:#c084fc;text-align:center;margin-bottom:15px;opacity:.9;}
+
+/* Search & Filter Box */
+.search-box{display:flex;gap:8px;margin-bottom:12px;}
+.search-input{flex:1;background:#180d28;border:1px solid #2d164d;padding:10px 14px;border-radius:12px;color:#fff;font-size:13px;outline:none;}
+.search-input:focus{border-color:#a855f7}
+.search-btn{background:#a855f7;border:0;color:#fff;padding:0 16px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:13px;}
+
+.filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:15px;}
+.filter-chip{background:#180d28;border:1px solid #2d164d;padding:6px 14px;border-radius:10px;font-size:12px;cursor:pointer;white-space:nowrap;color:#c49aff;}
+.filter-chip.active{background:#a855f7;border-color:#c084fc;color:#fff;font-weight:bold;}
+
+/* Order Cards List */
+.order-list{display:flex;flex-direction:column;gap:10px;}
+.order-card{background:#180d28;border:1px solid #2d164d;border-radius:14px;padding:14px;position:relative;}
+.order-name{font-size:14px;font-weight:bold;color:#fff;margin-bottom:6px;}
+.order-info{font-size:12px;color:#c084fc;margin-bottom:4px;opacity:.9;}
+.order-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-size:12px;}
+.price-tag{color:#4ade80;font-weight:bold;}
+.detail-btn{background:#2d164d;border:1px solid rgba(168,85,247,0.4);color:#c084fc;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;}
+
+.empty-state{text-align:center;padding:40px 20px;color:#aaa;font-size:13px;}
+
+/* Modal Box Styles */
+#detailModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;padding:16px;}
+.modal-content{background:#180d28;border:1px solid #2d164d;width:100%;max-width:400px;border-radius:20px;padding:20px;color:#fff;}
+.modal-header{font-size:15px;font-weight:bold;margin-bottom:15px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.modal-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed rgba(255,255,255,0.08);}
+.modal-row span:first-child{color:#c084fc;}
+.close-modal-btn{background:#a855f7;border:0;color:#fff;width:100%;padding:10px;border-radius:10px;font-weight:bold;margin-top:15px;cursor:pointer;}
+
+/* Bottom Navigation Dock */
+.bottom-nav-container {
+  position: fixed;
+  bottom: 15px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 9999;
+  padding: 0 10px;
+  pointer-events: none;
+}
+
+.bottom-nav {
+  pointer-events: auto;
+  position: relative;
+  width: 100%;
+  max-width: 100% !important;
+  height: 68px;
+  background: rgba(20, 10, 35, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 35px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  flex: 1;
+  transition: all 0.3s ease;
+  gap: 3px;
+}
+
+.nav-link i { font-size: 18px; }
+.nav-link.active { color: #c084fc; }
+.nav-link.active i { color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); }
+
+.center-btn-wrapper {
+  position: relative;
+  top: -22px;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.center-btn {
+  width: 62px;
+  height: 62px;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.8);
+  border: 4px solid #0d0614;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.center-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+</style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="nav-row">
+        <a href="index.html" class="home-btn"><i class="fa-solid fa-house"></i> Home</a>
+        <div class="nav-title">Order History</div>
+        <div style="width: 55px;"></div>
+    </div>
+
+    <div class="desc-text">ဝယ်ယူထားသော မှတ်တမ်းများကို ဤနေရာတွင် ကြည့်ရှုနိုင်ပါသည်။</div>
+
+    <!-- Search Box -->
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search Game ID or Name..." oninput="filterOrders()">
+        <button class="search-btn" onclick="filterOrders()">Search</button>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-row">
+        <div class="filter-chip active" onclick="setFilter('All', this)">All</div>
+        <div class="filter-chip" onclick="setFilter('mlbb', this)">MLBB</div>
+        <div class="filter-chip" onclick="setFilter('pubg', this)">PUBG</div>
+        <div class="filter-chip" onclick="setFilter('freefire', this)">Free Fire</div>
+        <div class="filter-chip" onclick="setFilter('honor', this)">Honor of King</div>
+        <div class="filter-chip" onclick="setFilter('telegram', this)">Telegram</div>
+        <div class="filter-chip" onclick="setFilter('gogo', this)">Magic Chess GoGo</div>
+    </div>
+
+    <!-- Order List -->
+    <div id="orderContainer" class="order-list"></div>
+</div>
+
+<!-- Order Detail Modal -->
+<div id="detailModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span id="mModalTitle">Order Detail</span>
+            <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeDetailModal()"></i>
+        </div>
+        <div id="modalBodyContent"></div>
+        <button class="close-modal-btn" onclick="closeDetailModal()">ပိတ်မည်</button>
+    </div>
+</div>
+
+<!-- Bottom Navigation Dock -->
+<div class="bottom-nav-container">
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-link">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="order.html" class="nav-link active">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>Orders</span>
+    </a>
+    <div class="center-btn-wrapper">
+      <a href="topup.html" class="center-btn">
+        <img src="Wallet.jpg" alt="Wallet">
+      </a>
+    </div>
+    <a href="transfer.html" class="nav-link">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>Transfer</span>
+    </a>
+    <a href="login.html" class="nav-link">
+      <i class="fa-solid fa-user"></i>
+      <span>Account</span>
+    </a>
+  </nav>
+</div>
+
+<script>
+const ORDERS_KEY = "atsx_orders";
+const SESSION_KEY = "atsx_session";
+let currentFilter = 'All';
+
+function getOrders() {
+    let allOrders = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+    let session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+    
+    if(!session) return [];
+    
+    let userIdentifier = session.phone || session.id;
+    return allOrders.filter(order => order.userKey === userIdentifier);
+}
+
+function renderOrders(ordersToDisplay) {
+    const container = document.getElementById('orderContainer');
+    container.innerHTML = "";
+
+    if(ordersToDisplay.length === 0) {
+        container.innerHTML = `<div class="empty-state">ဝယ်ယူထားသော မှတ်တမ်း မရှိသေးပါ။</div>`;
+        return;
+    }
+
+    ordersToDisplay.forEach(order => {
+        let card = document.createElement('div');
+        card.className = 'order-card';
+        card.innerHTML = `
+            <div class="order-name">${order.name}</div>
+            <div class="order-info">ID/Username: ${order.gameId} ${order.serverId ? '• Server: ' + order.serverId : ''}</div>
+            <div class="order-info">Qty: ${order.count} • Date: ${order.date}</div>
+            <div class="order-footer">
+                <span class="price-tag">ကျသင့်ငွေ - ${order.amount}</span>
+                <div class="detail-btn" onclick='openDetailModal(${JSON.stringify(order)})'><i class="fa-solid fa-info"></i></div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function setFilter(type, element) {
+    document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    currentFilter = type;
+    filterOrders();
+}
+
+function filterOrders() {
+    let query = document.getElementById('searchInput').value.toLowerCase();
+    let orders = getOrders();
+
+    let filtered = orders.filter(order => {
+        let matchesSearch = order.gameId.toLowerCase().includes(query) || order.name.toLowerCase().includes(query);
+        let matchesType = currentFilter === 'All' || (order.type && order.type.toLowerCase() === currentFilter.toLowerCase());
+        return matchesSearch && matchesType;
+    });
+
+    renderOrders(filtered);
+}
+
+function openDetailModal(order) {
+    document.getElementById('mModalTitle').innerText = "Order Detail - #" + order.id;
+    let content = `
+        <div class="modal-row"><span>NAME</span> <strong>${order.name}</strong></div>
+        <div class="modal-row"><span>ACCOUNT ID / USERNAME</span> <strong>${order.gameId}</strong></div>
+        ${order.serverId ? `<div class="modal-row"><span>SERVER ID</span> <strong>${order.serverId}</strong></div>` : ''}
+        <div class="modal-row"><span>TYPE</span> <strong>${(order.type || 'N/A').toUpperCase()}</strong></div>
+        <div class="modal-row"><span>COUNT</span> <strong>${order.count}</strong></div>
+        <div class="modal-row"><span>AMOUNT</span> <strong style="color:#4ade80;">${order.amount}</strong></div>
+        <div class="modal-row"><span>DISCOUNT</span> <strong>${order.discount || '0 ks'}</strong></div>
+        <div class="modal-row"><span>REFUNDED</span> <strong>${order.refunded || 'No'}</strong></div>
+        <div class="modal-row"><span>DATE</span> <strong>${order.date}</strong></div>
+    `;
+    document.getElementById('modalBodyContent').innerHTML = content;
+    document.getElementById('detailModal').style.display = 'flex';
+}
+
+function closeDetailModal() {
+    document.getElementById('detailModal').style.display = 'none';
+}
+
+window.onload = function() {
+    filterOrders();
+};
+</script>
+
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

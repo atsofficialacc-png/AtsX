@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mobile Legends Top Up</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#08051f;color:#fff;font-family:system-ui,-apple-system,"Noto Sans Myanmar",sans-serif;padding:16px;padding-bottom:50px}
+.container{max-width:680px;margin:auto}
+
+/* Navigation & Banner Header */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;background:#10082b;padding:10px 14px;border:1px solid #43218c;border-radius:18px;box-shadow:0 0 18px rgba(110,55,220,.12)}
+.home-btn{background:#1d1145;border:1px solid #6337c4;color:#fff;padding:6px 12px;border-radius:11px;text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px;transition:0.2s}
+.home-btn:active{transform:scale(0.95)}
+.nav-title{font-weight:800;font-size:15px;color:#b794ff}
+
+.banner{background:linear-gradient(135deg,#7135d5,#9c67ff);border:1px solid #a47aff;border-radius:17px;padding:16px;text-align:center;font-weight:bold;font-size:15px;margin-bottom:20px;color:#fff;box-shadow:0 7px 24px rgba(120,65,230,.28)}
+
+/* Section Title Bar Design */
+.section-title{color:#fff;background:#120a2c;border-left:5px solid #9b6cff;border:1px solid #43218c;border-left-width:5px;border-radius:10px;padding:11px 12px;margin:18px 0 10px;font-size:14px;font-weight:800}
+
+/* Notice Box inside 2x Diamond Bar */
+.notice-box{background:rgba(239,68,68,0.1);border:1px solid #ef4444;border-radius:10px;padding:10px;font-size:11px;color:#fca5a5;margin-bottom:10px;line-height:1.5;text-align:center}
+
+/* 3 Columns Grid & Centered Cards */
+.packs-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+.pack-card{
+  min-height:170px;padding:10px 7px 11px;
+  background:linear-gradient(160deg,#21134e,#0e0923);
+  border:1px solid #5630ad;border-radius:18px;
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(155,108,255,.08), 0 5px 14px rgba(0,0,0,.28);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  cursor:pointer;transition:all 0.2s ease;
+}
+.pack-card:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#6d35d8,#b68aff,#6d35d8)}
+.pack-card:after{content:"";position:absolute;right:5px;top:55px;width:4px;height:55px;background:repeating-linear-gradient(to bottom,#7445d0 0 6px,transparent 6px 11px);opacity:.8}
+.pack-card:active{transform:scale(.97);border-color:#b18aff;box-shadow:0 0 18px rgba(143,93,255,.28)}
+
+.item-thumb{width:72px;height:58px;object-fit:contain;display:block;margin:11px auto 5px;border-radius:8px;filter:drop-shadow(0 4px 7px rgba(0,0,0,.5))}
+.badge-instant{position:absolute;top:7px;right:6px;z-index:2;font-size:8px;color:#76f2bc;background:#173b38;border:1px solid #245d51;padding:3px 6px;border-radius:10px}
+.badge-first{position:absolute;top:7px;left:6px;z-index:2;font-size:8px;color:#fca5a5;background:#451a1a;border:1px solid #7f1d1d;padding:2px 5px;border-radius:8px}
+.pack-title{position:relative;z-index:2;font-size:11px;font-weight:800;line-height:1.25;margin:5px auto 8px;color:#fff;text-align:center;width:100%}
+.pack-price{
+  position:relative;z-index:2;display:inline-block;color:#fff;
+  background:linear-gradient(90deg,#6930c7,#925cf1);border:1px solid #b08aff;
+  border-radius:14px;padding:5px 9px;font-size:10px;font-weight:900;
+  box-shadow:0 3px 10px rgba(103,48,199,.25);text-align:center;margin:0 auto;
+}
+
+#buyModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;padding:16px}
+.modal-content{background:#120a2d;border:1px solid #6337c4;width:100%;max-width:400px;border-radius:20px;padding:20px;color:#fff}
+.id-inputs{display:flex;gap:8px;width:100%;}
+.id-inputs input{min-width:0; background:#1c1047; border:1px solid #4a2894; padding:10px; border-radius:10px; color:#fff; font-size:13px; outline:none;}
+
+@media(max-width:430px){
+  body{padding:10px 10px 65px}
+  .packs-grid{gap:8px}
+  .pack-card{min-height:162px}
+  .item-thumb{width:64px;height:52px}
+  .pack-title{font-size:10.5px}
+  .pack-price{font-size:9.5px;padding:5px 7px}
+}
+</style>
+  <script src="config.js"></script>
+</head>
+<body>
+<div class="container">
+<div class="nav-row">
+  <a class="home-btn" href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+  <div class="nav-title">Mobile Legends</div>
+  <a class="home-btn" href="order.html" style="border-color:#7c3aed; color:#a78bfa;"><i class="fa-solid fa-clock-rotate-left"></i> Orders</a>
+</div>
+<div class="banner">🎮 Mobile Legends Bang Bang Top Up</div>
+
+<!-- 1. Pass Section -->
+<div class="section-title">ဝယ်ယူလိုသည့် Pass ကိုနှိပ်ပါ</div>
+<div class="packs-grid">
+  <div class="pack-card" onclick="openModal('Weekly Pass', 7000)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">Weekly Pass</div><div class="pack-price">7000 ks</div></div>
+  <div class="pack-card" onclick="openModal('Twilight Pass', 38120)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">Twilight Pass</div><div class="pack-price">38,120 ks</div></div>
+  <div class="pack-card" onclick="openModal('Weekly Elite', 3610)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">Weekly Elite</div><div class="pack-price">3,610 ks</div></div>
+  <div class="pack-card" onclick="openModal('Monthly Epic', 18180)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">Monthly Epic</div><div class="pack-price">18,180 ks</div></div>
+  <div class="pack-card" onclick="openModal('Super Value Pass', 3610)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">Super Value Pass</div><div class="pack-price">3,610 ks</div></div>
+</div>
+
+<!-- 2. 2x Diamond Section -->
+<div class="section-title">2x Diamond</div>
+<div class="notice-box">
+  ⚠️ Game Account တစ်ခုလျှင် တစ်ကြိမ်သာ ဝယ်ယူခွင့်ရှိပါသည်။ အကယ်၍ ပထမအကြိမ် ဝယ်ယူပြီးပါက ထပ်မံဝယ်ယူလျှင် ရရှိမည်မဟုတ်ပါသဖြင့် သတိပြု၍ ဝယ်ယူပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။
+</div>
+<div class="packs-grid">
+  <div class="pack-card" onclick="openModal('50 + 50 Diamond', 3610)"><div class="badge-first">First Recharge</div><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">50 + 50 Diamond</div><div class="pack-price">3,610 ks</div></div>
+  <div class="pack-card" onclick="openModal('150 + 150 Diamond', 10820)"><div class="badge-first">First Recharge</div><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">150 + 150 Diamond</div><div class="pack-price">10,820 ks</div></div>
+  <div class="pack-card" onclick="openModal('250 + 250 Diamond', 17390)"><div class="badge-first">First Recharge</div><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">250 + 250 Diamond</div><div class="pack-price">17,390 ks</div></div>
+  <div class="pack-card" onclick="openModal('500 + 500 Diamond', 35650)"><div class="badge-first">First Recharge</div><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">500 + 500 Diamond</div><div class="pack-price">35,650 ks</div></div>
+</div>
+
+<!-- 3. Standard Diamonds Section -->
+<div class="section-title">ဝယ်ယူလိုသည့်ပမာဏကိုနှိပ်ပါ</div>
+<div class="packs-grid">
+  <div class="pack-card" onclick="openModal('11 Diamond', 1220)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">11 Diamond</div><div class="pack-price">1,220 ks</div></div>
+  <div class="pack-card" onclick="openModal('22 Diamond', 2440)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">22 Diamond</div><div class="pack-price">2,440 ks</div></div>
+  <div class="pack-card" onclick="openModal('42 Diamond', 3510)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">42 Diamond</div><div class="pack-price">3,510 ks</div></div>
+  <div class="pack-card" onclick="openModal('86 Diamond', 5680)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">86 Diamond</div><div class="pack-price">5,680 ks</div></div>
+  <div class="pack-card" onclick="openModal('172 Diamond', 11270)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">172 Diamond</div><div class="pack-price">11,270 ks</div></div>
+  <div class="pack-card" onclick="openModal('257 Diamond', 16520)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">257 Diamond</div><div class="pack-price">16,520 ks</div></div>
+  <div class="pack-card" onclick="openModal('343 Diamond', 21890)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">343 Diamond</div><div class="pack-price">21,890 ks</div></div>
+  <div class="pack-card" onclick="openModal('429 Diamond', 27680)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">429 Diamond</div><div class="pack-price">27,680 ks</div></div>
+  <div class="pack-card" onclick="openModal('515 Diamond', 33060)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">515 Diamond</div><div class="pack-price">33,060 ks</div></div>
+  <div class="pack-card" onclick="openModal('600 Diamond', 38410)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">600 Diamond</div><div class="pack-price">38,410 ks</div></div>
+  <div class="pack-card" onclick="openModal('706 Diamond', 43960)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">706 Diamond</div><div class="pack-price">43,960 ks</div></div>
+  <div class="pack-card" onclick="openModal('878 Diamond', 55120)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">878 Diamond</div><div class="pack-price">55,120 ks</div></div>
+  <div class="pack-card" onclick="openModal('963 Diamond', 60470)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">963 Diamond</div><div class="pack-price">60,470 ks</div></div>
+  <div class="pack-card" onclick="openModal('1049 Diamond', 66350)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">1049 Diamond</div><div class="pack-price">66,350 ks</div></div>
+  <div class="pack-card" onclick="openModal('1135 Diamond', 71630)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">1135 Diamond</div><div class="pack-price">71,630 ks</div></div>
+  <div class="pack-card" onclick="openModal('1412 Diamond', 88410)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">1412 Diamond</div><div class="pack-price">88,410 ks</div></div>
+  <div class="pack-card" onclick="openModal('2195 Diamond', 134000)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">2195 Diamond</div><div class="pack-price">134,000 ks</div></div>
+  <div class="pack-card" onclick="openModal('2901 Diamond', 178950)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">2901 Diamond</div><div class="pack-price">178,950 ks</div></div>
+  <div class="pack-card" onclick="openModal('3688 Diamond', 221860)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">3688 Diamond</div><div class="pack-price">221,860 ks</div></div>
+  <div class="pack-card" onclick="openModal('4394 Diamond', 268810)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">4394 Diamond</div><div class="pack-price">268,810 ks</div></div>
+  <div class="pack-card" onclick="openModal('5532 Diamond', 334890)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">5532 Diamond</div><div class="pack-price">334,890 ks</div></div>
+  <div class="pack-card" onclick="openModal('9288 Diamond', 556310)"><div class="badge-instant"><i class="fa-solid fa-bolt"></i> Instant</div><img alt="Item" class="item-thumb" src="mlbb.jpg"/><div class="pack-title">9288 Diamond</div><div class="pack-price">556,310 ks</div></div>
+</div>
+</div>
+
+<!-- Modal -->
+<div id="buyModal">
+<div class="modal-content">
+<div style="font-size:16px; font-weight:bold; margin-bottom:15px; border-bottom:1px solid #2a165b; padding-bottom:8px;">အချက်အလက်များ ဖြည့်သွင်းပါ</div>
+<div style="margin-bottom:12px;">
+<label style="font-size:12px; color:#c49aff;">User ID &amp; Server ID</label>
+<div class="id-inputs" style="margin-top:5px;">
+<input id="gameIdInput" placeholder="User ID" style="flex:2;" type="text"/>
+<input id="serverIdInput" placeholder="Server ID" style="flex:1;" type="text"/>
+</div>
+</div>
+<div style="margin-bottom:12px;">
+<label style="font-size:12px; color:#c49aff;">ရွေးချယ်ထားသော ပမာဏ</label>
+<div id="selectedPackText" style="background:#1c1047; border:1px solid #4a2894; padding:10px; border-radius:10px; font-size:13px; margin-top:5px; font-weight:bold; color:#b794ff;">-</div>
+</div>
+<div style="margin-bottom:12px;">
+<label style="font-size:12px; color:#c49aff;">အရေအတွက် (Quantity)</label>
+<input id="qtyInput" max="99" min="1" oninput="calculateTotal()" style="width:100%; background:#1c1047; border:1px solid #4a2894; padding:10px; border-radius:10px; color:#fff; font-size:13px; margin-top:5px; outline:none;" type="number" value="1"/>
+</div>
+<div id="modalBalanceBox" style="background:#180d38; border:1px solid #27ab68; padding:10px; border-radius:10px; text-align:center; margin-bottom:15px; color:#65efb0; font-weight:bold; font-size:14px;">
+    လက်ကျန်ငွေ = 0 ks
+</div>
+<div style="display:flex; gap:10px;">
+<button onclick="closeModal()" style="flex:1; background:#241459; border:1px solid #4a2894; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">မဝယ်သေးပါ</button>
+<button onclick="confirmBuy()" style="flex:1; background:linear-gradient(135deg,#7135d5,#9c67ff); border:0; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">ဝယ်မည်</button>
+</div>
+</div>
+</div>
+
+<!-- Custom Alert Box -->
+<div id="atsxAlertOverlay" role="dialog" aria-modal="true">
+  <div id="atsxAlertBox">
+    <div class="atsx-alert-line"></div>
+    <div class="atsx-alert-content">
+      <div class="atsx-alert-icon" id="atsxAlertIcon">!</div>
+      <div class="atsx-alert-title" id="atsxAlertTitle">AtsX Store</div>
+      <div class="atsx-alert-message" id="atsxAlertMessage"></div>
+      <button id="atsxAlertOk" type="button">OK</button>
+    </div>
+  </div>
+</div>
+<script>
+const USERS_KEY = "atsx_users";
+const SESSION_KEY = "atsx_session";
+
+let rawItemName = "";
+let baseUnitPrice = 0;
+
+function getCurrentUser() {
+    let users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+    let session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+    if(!session) return null;
+    return users.find(u => u.phone === session.phone || u.id === session.id);
+}
+
+function updateModalBalanceDisplay() {
+    let user = getCurrentUser();
+    let balance = user && user.balance !== undefined ? user.balance : 0;
+    document.getElementById("modalBalanceBox").innerText = "လက်ကျန်ငွေ = " + Number(balance).toLocaleString() + " ks";
+}
+
+function openModal(packName, unitPrice) {
+    let session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+    if(!session) {
+        showAlert("❌ ကျေးဇူးပြု၍ ဦးစွာ အကောင့်ဝင်ပါ");
+        window.location.href = "login.html";
+        return;
+    }
+
+    rawItemName = packName;
+    baseUnitPrice = unitPrice;
+    document.getElementById("qtyInput").value = 1;
+    calculateTotal();
+    document.getElementById("gameIdInput").value = "";
+    document.getElementById("serverIdInput").value = "";
+
+    updateModalBalanceDisplay();
+    document.getElementById("buyModal").style.display = "flex";
+}
+
+function calculateTotal() {
+    let qty = parseInt(document.getElementById("qtyInput").value) || 1;
+    let totalPrice = baseUnitPrice * qty;
+    document.getElementById("selectedPackText").innerText = rawItemName + " (x" + qty + ") - " + totalPrice.toLocaleString() + " ks";
+}
+
+function closeModal() {
+    document.getElementById("buyModal").style.display = "none";
+}
+
+function confirmBuy() {
+    const gameId = document.getElementById("gameIdInput").value.trim();
+    const serverId = document.getElementById("serverIdInput").value.trim();
+    let qty = parseInt(document.getElementById("qtyInput").value) || 1;
+    
+    if(!gameId || !serverId) {
+        showAlert("ကျေးဇူးပြု၍ User ID နှင့် Server ID နှစ်ခုစလုံးကို ဖြည့်သွင်းပါ");
+        return;
+    }
+
+    let totalCost = baseUnitPrice * qty;
+    let users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+    let session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+
+    let userIndex = users.findIndex(u => u.phone === session.phone || u.id === session.id);
+    if(userIndex === -1) return;
+
+    let currentBalance = users[userIndex].balance || 0;
+
+    if (currentBalance < totalCost) {
+        showAlert("❌ လက်ကျန်ငွေ မလုံလောက်ပါ။ (လက်ကျန်: " + Number(currentBalance).toLocaleString() + " ks)");
+        return;
+    }
+
+    users[userIndex].balance = currentBalance - totalCost;
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+    let userIdentifier = session.phone || session.id;
+    let newOrder = {
+        id: Math.floor(100000000 + Math.random() * 900000000).toString(),
+        userKey: userIdentifier,
+        name: rawItemName,
+        gameId: gameId,
+        serverId: serverId, 
+        type: "Mlbb", 
+        count: qty,
+        amount: totalCost.toLocaleString() + " ks",
+        discount: "0 ks",
+        refunded: "No",
+        date: new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    };
+
+    let allOrders = JSON.parse(localStorage.getItem('atsx_orders') || '[]');
+    allOrders.unshift(newOrder);
+    localStorage.setItem('atsx_orders', JSON.stringify(allOrders));
+
+    showAlert("✅ ဝယ်ယူမှု အောင်မြင်ပါသည်!");
+    closeModal();
+    updateModalBalanceDisplay();
+}
+</script>
+
+<!-- AtsX Custom Alert Style -->
+<style id="atsx-alert-style">
+#atsxAlertOverlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(2,1,10,.72);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+#atsxAlertOverlay.show{display:flex;animation:atsxFade .18s ease-out}
+#atsxAlertBox{width:min(390px,92vw);position:relative;overflow:hidden;border:1px solid rgba(168,91,255,.48);border-radius:24px;background:linear-gradient(145deg,rgba(24,12,48,.98),rgba(7,5,20,.98));box-shadow:0 24px 70px rgba(0,0,0,.65),0 0 35px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.08);transform:scale(.92);animation:atsxPop .22s cubic-bezier(.2,.9,.25,1.15) forwards}
+#atsxAlertBox:before{content:"";position:absolute;left:-20%;top:-70px;width:140%;height:130px;background:radial-gradient(ellipse,rgba(145,72,255,.35),transparent 65%);pointer-events:none}
+.atsx-alert-line{height:3px;width:100%;background:linear-gradient(90deg,#6d28d9,#c084fc,#7c3aed,#6d28d9);box-shadow:0 0 18px rgba(168,85,247,.8)}
+.atsx-alert-content{padding:25px 23px 22px;text-align:center;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.atsx-alert-icon{width:58px;height:58px;margin:0 auto 13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:27px;background:linear-gradient(145deg,rgba(139,92,246,.28),rgba(59,7,100,.5));border:1px solid rgba(192,132,252,.42);box-shadow:0 0 25px rgba(139,92,246,.22),inset 0 0 18px rgba(168,85,247,.1)}
+.atsx-alert-title{font-size:19px;font-weight:800;letter-spacing:.2px;margin-bottom:9px;background:linear-gradient(90deg,#fff,#d8b4fe);-webkit-background-clip:text;background-clip:text;color:transparent}
+.atsx-alert-message{font-size:14px;line-height:1.65;color:#d7d1e5;white-space:pre-wrap;word-break:break-word;max-height:180px;overflow:auto}
+#atsxAlertOk{margin-top:20px;min-width:125px;padding:11px 25px;border:1px solid rgba(192,132,252,.55);border-radius:13px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#6d28d9,#9333ea);box-shadow:0 8px 22px rgba(109,40,217,.3),inset 0 1px 0 rgba(255,255,255,.16);transition:.16s ease}
+#atsxAlertOk:active{transform:scale(.96)}
+#atsxAlertOk:hover{filter:brightness(1.12);box-shadow:0 10px 28px rgba(147,51,234,.4)}
+@keyframes atsxFade{from{opacity:0}to{opacity:1}}
+@keyframes atsxPop{to{transform:scale(1)}}
+@media(max-width:420px){#atsxAlertBox{border-radius:21px}.atsx-alert-content{padding:22px 18px 19px}.atsx-alert-message{font-size:13.5px}}
+</style>
+<script>
+(function(){
+  const overlay=document.getElementById('atsxAlertOverlay');
+  const msgEl=document.getElementById('atsxAlertMessage');
+  const titleEl=document.getElementById('atsxAlertTitle');
+  const iconEl=document.getElementById('atsxAlertIcon');
+  const ok=document.getElementById('atsxAlertOk');
+  if(!overlay) return;
+  let lastFocus=null;
+  window.showAlert=function(message){
+    lastFocus=document.activeElement;
+    const text=String(message ?? '');
+    msgEl.textContent=text;
+    const success=/[✅]|အောင်မြင်|success|completed/i.test(text);
+    const error=/[❌]|error|မလုံလောက်|ထည့်သွင်း|ဦးစွာ|ငြင်းပယ်|ဖျက်/i.test(text);
+    titleEl.textContent=success?'အောင်မြင်ပါသည်':error?'သတိပေးချက်':'AtsX Store';
+    iconEl.textContent=success?'✓':error?'×':'!';
+    overlay.classList.add('show');
+    document.body.style.overflow='hidden';
+    setTimeout(()=>ok.focus(),20);
+  };
+  function closeAlert(){overlay.classList.remove('show');document.body.style.overflow='';if(lastFocus&&lastFocus.focus) lastFocus.focus();}
+  ok.addEventListener('click',closeAlert);
+  overlay.addEventListener('click',e=>{if(e.target===overlay) closeAlert();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('show')) closeAlert();});
+})();
+</script>
+
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>

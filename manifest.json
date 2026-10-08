@@ -1,0 +1,17 @@
+{
+  "name": "AtsX Store",
+  "short_name": "AtsX Store",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0d0614",
+  "theme_color": "#321e43",
+  "description": "AtsX Store - Mobile Game Top Up",
+  "icons": [
+    {
+      "src": "app.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

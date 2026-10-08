@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AtsX Store Account</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{margin:0;background:#08051f;color:#fff;font-family:system-ui,-apple-system,"Noto Sans Myanmar",sans-serif}
+
+.app{width:100%;max-width:100%;min-height:100vh;margin:auto;padding:20px 16px 110px;background:linear-gradient(#120735,#07051d)}
+
+.page{display:none}.page.active{display:block}
+.logo{text-align:center;font-size:32px;font-weight:bold;margin:35px 0 8px}
+.sub{text-align:center;color:#aaa;margin-bottom:25px}
+.card{background:#17103d;border:1px solid #45268a;border-radius:20px;padding:20px;margin-bottom:16px}
+label{display:block;font-size:13px;color:#aaa;margin-bottom:6px}
+input{width:100%;padding:14px;margin-bottom:15px;border-radius:12px;border:1px solid #49337b;background:#0d0829;color:#fff;font-size:16px;outline:none}
+input:focus{border-color:#a454ff}
+
+/* Password Input Wrapper with Eye Icon */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+.password-wrapper input {
+  padding-right: 45px;
+}
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  color: #a454ff;
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+}
+
+.primary{width:100%;padding:14px;border:0;border-radius:13px;background:linear-gradient(90deg,#7138dc,#a454ff);color:white;font-size:16px;font-weight:bold;cursor:pointer}
+.link{width:100%;margin-top:15px;border:0;background:none;color:#c49aff;font-size:14px;cursor:pointer}
+
+/* Header & Balance Bar */
+.header-row{display:flex;justify-content:space-between;align-items:center;margin:20px 0 15px}
+.title{font-size:27px;font-weight:bold;margin:0}
+.balance-bar{display:flex;align-items:center;gap:8px;background:#180d38;border:1px solid #3c2075;padding:6px 12px;border-radius:20px;font-size:14px;font-weight:bold;color:#65efb0}
+.add-btn{width:22px;height:22px;background:#8b3dff;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;font-weight:bold}
+
+/* Profile Card UI */
+.tiktok-profile {
+  position: relative;
+  text-align: center;
+  padding: 24px 20px 18px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #45268a;
+  border-radius: 20px;
+  transition: background 0.3s ease;
+}
+
+.tiktok-profile::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(23, 16, 61, 0.75);
+  z-index: 1;
+}
+
+.tiktok-profile-content {
+  position: relative;
+  z-index: 2;
+}
+
+.change-bg-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tiktok-avatar-container {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 14px;
+  cursor: pointer;
+}
+
+.tiktok-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #a855f7;
+  background: #100a32;
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.45);
+}
+
+.avatar-edit-icon {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border: 2px solid #17103d;
+}
+
+.tiktok-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.edit-name-btn {
+  background: none;
+  border: none;
+  color: #c49aff;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+.tiktok-username {
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* Section Header & Pin Box UI */
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 22px 2px 12px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.pin-display-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #100a32;
+  border: 1px solid #49337b;
+  padding: 6px 12px;
+  border-radius: 12px;
+  color: #c084fc;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.pin-action-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.pin-action-btn:hover {
+  color: #fff;
+}
+
+.socials{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.social{padding:15px;border-radius:14px;background:#100a32;border:1px solid #3b2673;text-decoration:none;color:#fff;display:block;text-align:center}
+.device{padding:16px;margin-top:12px;border:1px solid #3b2673;border-radius:15px;background:#100a32}
+.green{color:#65efb0;font-weight:bold}
+.muted{color:#aaa;font-size:13px;margin-top:7px}
+
+/* Curved Bottom Navigation */
+.bottom-nav-container {
+  position: fixed;
+  bottom: 15px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 9999;
+  padding: 0 10px;
+  pointer-events: none;
+  display: none;
+}
+
+.bottom-nav {
+  pointer-events: auto;
+  position: relative;
+  width: 100%;
+  max-width: 100% !important;
+  height: 68px;
+  background: rgba(20, 10, 35, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 35px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  flex: 1;
+  transition: all 0.3s ease;
+  gap: 3px;
+}
+
+.nav-link i { font-size: 18px; transition: transform 0.2s ease, color 0.2s ease; }
+.nav-link.active { color: #c084fc; }
+.nav-link.active i { transform: translateY(-2px); color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.8); }
+
+.center-btn-wrapper { position: relative; top: -22px; flex: 1; display: flex; justify-content: center; }
+.center-btn {
+  width: 62px;
+  height: 62px;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.8);
+  border: 4px solid #08051f;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.center-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:white;color:#222;padding:12px 18px;border-radius:12px;display:none;z-index:10000}
+</style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<div class="app">
+<!-- REGISTER -->
+<section id="register" class="page active">
+    <div class="logo">AtsX Store</div>
+    <div class="sub">Create Account</div>
+    <div class="card">
+        <label>Account Name</label>
+        <input id="registerName" type="text" placeholder="Enter your name">
+        
+        <label>You are Phone Number </label>
+        <input id="registerPhone" type="tel" maxlength="11" placeholder="09xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input id="registerPassword" type="password" placeholder="Create password">
+          <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('registerPassword', this)"></i>
+        </div>
+
+        <button class="primary" onclick="register()">Create Account</button>
+        <button class="link" onclick="showPage('login')">Already have an account? Login</button>
+    </div>
+</section>
+
+<!-- LOGIN -->
+<section id="login" class="page">
+    <div class="logo">AtsX Store</div>
+    <div class="sub">Login to your account</div>
+    <div class="card">
+        <label>Phone Number</label>
+        <input id="loginPhone" type="tel" maxlength="11" placeholder="09xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input id="loginPassword" type="password" placeholder="Password">
+          <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('loginPassword', this)"></i>
+        </div>
+
+        <button class="primary" onclick="login()">Login</button>
+        <button class="link" onclick="showPage('register')">Create New Account</button>
+    </div>
+</section>
+
+<!-- ACCOUNT -->
+<section id="account" class="page">
+    <div class="header-row">
+        <div class="title">Account</div>
+        <div class="balance-bar">
+            💳 <span id="accountBalance">0 ks</span>
+            <a href="topup.html" class="add-btn">+</a>
+        </div>
+    </div>
+
+    <div class="card tiktok-profile" id="profileCard">
+        <button class="change-bg-btn" onclick="document.getElementById('bgInput').click()">
+            <i class="fa-solid fa-image"></i> Change Cover
+        </button>
+        <input type="file" id="bgInput" accept="image/*" style="display: none;" onchange="changeBgImage(event)">
+
+        <div class="tiktok-profile-content">
+            <div class="tiktok-avatar-container" onclick="document.getElementById('avatarInput').click()">
+                <img src="Wallet.jpg" alt="Profile" class="tiktok-avatar" id="accountAvatar">
+                <div class="avatar-edit-icon"><i class="fa-solid fa-camera"></i></div>
+            </div>
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="changeProfileImage(event)">
+
+            <div class="tiktok-name-row">
+                <span id="accountName">AtsX</span>
+                <i class="fa-solid fa-circle-check" style="color: #65efb0; font-size: 16px;"></i>
+                <button class="edit-name-btn" onclick="editAccountName()" title="Edit Name"><i class="fa-solid fa-pen"></i></button>
+            </div>
+            <div class="tiktok-username">
+              <div class="id-copy-container" onclick="copyAccountID()" title="Click to Copy ID" style="cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+               ID <span id="accountID">1234567890</span>
+                <i class="fa-solid fa-copy copy-icon-btn"></i>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Password Header with Display Box -->
+    <div class="section-header-row">
+        <div class="section-title">Transfer Password</div>
+        <div class="pin-display-box">
+            <span id="transferPinDisplay">****</span>
+            <button class="pin-action-btn" onclick="togglePinVisibility()" title="Show/Hide PIN">
+                <i class="fa-solid fa-eye" id="pinEyeIcon"></i>
+            </button>
+            <button class="pin-action-btn" onclick="copyTransferPin()" title="Copy PIN">
+                <i class="fa-solid fa-copy"></i>
+            </button>
+            <button class="pin-action-btn" onclick="editTransferPin()" title="Change PIN">
+                <i class="fa-solid fa-pen"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="card socials">
+        <a href="customer-service.html" class="social">Customer Service</a>
+        <a href="customer-service.html" class="social">Tel Channel</a>
+    </div>
+    <div class="section-title" style="margin:22px 2px 12px;">Current Device</div>
+    <div class="card" id="currentDevice"></div>
+    <button class="primary" onclick="logout()">Logout</button>
+</section>
+</div>
+
+
+<!-- Change Transfer PIN Modal: maximum 4 digits, not 4 attempts -->
+<div id="changePinModal" class="pin-change-overlay" aria-hidden="true">
+  <div class="pin-change-card">
+    <div class="pin-change-title">Transfer Password</div>
+    <div class="pin-change-subtitle">PIN အသစ်ကို အများဆုံး ၄ လုံး ရိုက်ထည့်ပါ</div>
+    <div class="pin-input-wrap">
+      <input id="newTransferPinInput" type="password" inputmode="numeric" autocomplete="off"
+             maxlength="4" pattern="[0-9]{0,4}" placeholder="••••"
+             oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
+      <button type="button" class="pin-eye" onclick="toggleNewPinInput()" aria-label="Show PIN">
+        <i class="fa-solid fa-eye" id="newPinEye"></i>
+      </button>
+    </div>
+    <div class="pin-change-actions">
+      <button type="button" class="pin-cancel" onclick="closeChangePinModal()">CANCEL</button>
+      <button type="button" class="pin-confirm" onclick="saveNewTransferPin()">OK</button>
+    </div>
+  </div>
+</div>
+<style>
+.pin-change-overlay{position:fixed;inset:0;background:rgba(4,2,16,.78);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:99999;padding:22px}
+.pin-change-overlay.show{display:flex}
+.pin-change-card{width:min(420px,100%);background:#120a2d;border:1px solid #6337c4;border-radius:20px;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 30px rgba(126,70,230,.18)}
+.pin-change-title{font-size:21px;font-weight:800;color:#fff;margin-bottom:6px}
+.pin-change-subtitle{font-size:13px;color:#cbbaf1;margin-bottom:16px}
+.pin-input-wrap{display:flex;align-items:center;background:#0b0620;border:1px solid #5e36b0;border-radius:14px;overflow:hidden}
+.pin-input-wrap input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;font-size:25px;letter-spacing:9px;padding:14px 12px}
+.pin-eye{width:52px;height:52px;border:0;background:transparent;color:#a982ff;font-size:18px}
+.pin-change-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.pin-cancel,.pin-confirm{border-radius:12px;padding:10px 18px;font-weight:800;border:1px solid #5930a9;background:#1b103e;color:#d8c8ff}
+.pin-confirm{background:linear-gradient(135deg,#6c35cf,#925df0);color:#fff;border-color:#a77cff}
+</style>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav-container" id="navigation">
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-link">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="order.html" class="nav-link">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>Orders</span>
+    </a>
+    <div class="center-btn-wrapper">
+      <a href="topup.html" class="center-btn">
+        <img src="Wallet.jpg" alt="Wallet">
+      </a>
+    </div>
+    <a href="transfer.html" class="nav-link">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>Transfer</span>
+    </a>
+    <a href="login.html" class="nav-link active">
+      <i class="fa-solid fa-user"></i>
+      <span>Account</span>
+    </a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script>
+let isPinVisible = false;
+
+const USERS_KEY = "atsx_users";
+const SESSION_KEY = "atsx_session";
+
+let users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+let session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+
+// Toggle Password Visibility
+function togglePassword(inputId, icon) {
+  const input = document.getElementById(inputId);
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.remove("fa-eye");
+    icon.classList.add("fa-eye-slash");
+  } else {
+    input.type = "password";
+    icon.classList.remove("fa-eye-slash");
+    icon.classList.add("fa-eye");
+  }
+}
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
+  document.getElementById("navigation").style.display = page === "account" ? "flex" : "none";
+}
+
+function toast(msg) {
+  const box = document.getElementById("toast");
+  box.textContent = msg;
+  box.style.display = "block";
+  setTimeout(() => box.style.display = "none", 1800);
+}
+
+function getUserDisplayName(user) {
+  if (!user) return 'User';
+  const possibleName = user.name || user.username || user.fullname || user.userName;
+  if (possibleName && possibleName !== 'login.html' && possibleName !== 'User' && possibleName.trim() !== '') {
+    return possibleName;
+  }
+  return 'User_' + String(user.id || user.phone || '000').slice(-4);
+}
+
+function saveUsers() {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function getDeviceID() {
+  let id = localStorage.getItem("atsx_device_id");
+  if (!id) {
+    id = Date.now() + "-" + Math.random().toString(36).substring(2);
+    localStorage.setItem("atsx_device_id", id);
+  }
+  return id;
+}
+
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let os = "Unknown OS";
+  if (/Android/i.test(ua)) os = "Android";
+  else if (/iPhone|iPad/i.test(ua)) os = "iOS";
+  else if (/Windows/i.test(ua)) os = "Windows";
+  else if (/Mac/i.test(ua)) os = "macOS";
+  
+  let browser = "Browser";
+  if (/Chrome/i.test(ua)) browser = "Chrome";
+  else if (/Firefox/i.test(ua)) browser = "Firefox";
+  else if (/Safari/i.test(ua)) browser = "Safari";
+  
+  return os + " • " + browser;
+}
+
+function generateAccountID() {
+  let id;
+  do {
+    id = Math.floor(10000000000 + Math.random() * 89999999999).toString();
+  } while (users.some(u => u.id === id || u.accountID === id));
+  return id;
+}
+
+function generateDefaultPin() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+function register() {
+  const name = document.getElementById("registerName").value.trim();
+  const phone = document.getElementById("registerPhone").value.trim();
+  const password = document.getElementById("registerPassword").value;
+
+  if (!name || !phone || !password) {
+    toast("Please fill all fields");
+    return;
+  }
+
+  if (phone.length !== 11) {
+    toast("ဖုန်းနံပါတ် ၁၁ လုံး အတိအကျ ရိုက်ပါ");
+    return;
+  }
+
+  if (password.length < 4) {
+    toast("Password must be 4+ characters");
+    return;
+  }
+
+  if (users.some(u => u.phone === phone)) {
+    toast("Account already exists");
+    return;
+  }
+
+  const device = {
+    id: getDeviceID(),
+    agent: getDeviceInfo(),
+    lastActive: new Date().toLocaleString()
+  };
+
+  const newUser = {
+    id: generateAccountID(),
+    accountID: generateAccountID(),
+    name: name,
+    phone: phone,
+    password: password,
+    pin: generateDefaultPin(),
+    balance: 0,
+    avatar: "Wallet.jpg",
+    bgImage: "",
+    isBanned: false,
+    devices: [device]
+  };
+
+  users.push(newUser);
+  saveUsers();
+
+  session = { phone: phone, deviceID: device.id };
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  localStorage.setItem("atsx_current_user", JSON.stringify(newUser));
+
+  toast("Account created");
+  loadAccount();
+}
+
+function login() {
+  const phone = document.getElementById("loginPhone").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  if (phone.length !== 11) {
+    toast("ဖုန်းနံပါတ် ၁၁ လုံး အတိအကျ ရိုက်ပါ");
+    return;
+  }
+
+  users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  const userIndex = users.findIndex(u => u.phone === phone);
+  
+  if (userIndex === -1 || users[userIndex].password !== password) {
+    toast("Wrong phone or password");
+    return;
+  }
+
+  const user = users[userIndex];
+
+  if (user.isBanned) {
+    toast("သင့်အကောင့် ပိတ်ခံထားရပါသည် (Banned)");
+    return;
+  }
+
+  if (!user.pin) {
+    user.pin = generateDefaultPin();
+  }
+
+  const deviceID = getDeviceID();
+  if (!user.devices) user.devices = [];
+  
+  let device = user.devices.find(d => d.id === deviceID);
+  if (!device) {
+    device = { id: deviceID, agent: getDeviceInfo(), lastActive: new Date().toLocaleString() };
+    user.devices.push(device);
+  } else {
+    device.lastActive = new Date().toLocaleString();
+  }
+
+  saveUsers();
+
+  session = { phone: phone, deviceID: deviceID };
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  localStorage.setItem("atsx_current_user", JSON.stringify(user));
+
+  loadAccount();
+}
+
+function loadAccount() {
+  users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+
+  if (!session) {
+    showPage("login");
+    return;
+  }
+
+  const user = users.find(u => u.phone === session.phone || u.id === session.id);
+  if (!user) {
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem("atsx_current_user");
+    showPage("register");
+    return;
+  }
+
+  if (!user.pin) {
+    user.pin = generateDefaultPin();
+    saveUsers();
+  }
+
+  const validName = getUserDisplayName(user);
+  user.name = validName; 
+  document.getElementById("accountName").textContent = validName;
+  document.getElementById("accountID").textContent = user.id || user.accountID;
+  
+  if (user.avatar) {
+    document.getElementById("accountAvatar").src = user.avatar;
+  }
+
+  const profileCard = document.getElementById("profileCard");
+  if (user.bgImage) {
+    profileCard.style.backgroundImage = `url(${user.bgImage})`;
+  } else {
+    profileCard.style.backgroundImage = "none";
+  }
+  
+  const currentBalance = user.balance !== undefined ? user.balance : 0;
+  document.getElementById("accountBalance").textContent = Number(currentBalance).toLocaleString() + " ks";
+
+  updatePinDisplayUI(user.pin);
+
+  localStorage.setItem("atsx_current_user", JSON.stringify(user));
+
+  const current = (user.devices || []).find(d => d.id === session.deviceID);
+  if (current) {
+    document.getElementById("currentDevice").innerHTML = `
+      <div class="green">✓ Current Device</div>
+      <div class="muted">Device: ${current.agent}</div>
+      <div class="muted">Last Active: ${current.lastActive}</div>`;
+  }
+
+  showPage("account");
+}
+
+function updatePinDisplayUI(pin) {
+  const pinElem = document.getElementById("transferPinDisplay");
+  const icon = document.getElementById("pinEyeIcon");
+  if (isPinVisible) {
+    pinElem.textContent = pin || "****";
+    icon.classList.remove("fa-eye");
+    icon.classList.add("fa-eye-slash");
+  } else {
+    pinElem.textContent = "****";
+    icon.classList.remove("fa-eye-slash");
+    icon.classList.add("fa-eye");
+  }
+}
+
+function togglePinVisibility() {
+  isPinVisible = !isPinVisible;
+  users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+  const user = users.find(u => u.phone === session.phone || u.id === session.id);
+  updatePinDisplayUI(user ? user.pin : "****");
+}
+
+function copyTransferPin() {
+  users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+  const user = users.find(u => u.phone === session.phone || u.id === session.id);
+  const pinVal = user ? user.pin : "";
+
+  if (!pinVal) {
+    toast("No PIN set");
+    return;
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(pinVal).then(() => {
+      toast("Copied PIN: " + pinVal);
+    }).catch(err => {
+      prompt("Copy this PIN manually:", pinVal);
+    });
+  } else {
+    prompt("Copy this PIN manually:", pinVal);
+  }
+}
+
+function editTransferPin() {
+  users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+  if (!session) return;
+
+  const userIndex = users.findIndex(u => u.phone === session.phone || u.id === session.id);
+  if (userIndex === -1) return;
+
+  const input = document.getElementById('newTransferPinInput');
+  input.value = String(users[userIndex].pin || '').replace(/\D/g, '').slice(0,4);
+  input.type = 'password';
+  document.getElementById('newPinEye').className = 'fa-solid fa-eye';
+  const modal = document.getElementById('changePinModal');
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+  setTimeout(() => { input.focus(); input.setSelectionRange(input.value.length,input.value.length); }, 50);
+}
+
+function closeChangePinModal() {
+  const modal = document.getElementById('changePinModal');
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+}
+
+function toggleNewPinInput() {
+  const input = document.getElementById('newTransferPinInput');
+  const eye = document.getElementById('newPinEye');
+  if (input.type === 'password') {
+    input.type = 'text';
+    eye.className = 'fa-solid fa-eye-slash';
+  } else {
+    input.type = 'password';
+    eye.className = 'fa-solid fa-eye';
+  }
+}
+
+function saveNewTransferPin() {
+  users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+  if (!session) return;
+  const userIndex = users.findIndex(u => u.phone === session.phone || u.id === session.id);
+  if (userIndex === -1) return;
+
+  const newPin = String(document.getElementById('newTransferPinInput').value || '')
+    .replace(/\D/g,'').slice(0,4);
+
+  // Exactly 4 digits is required for saving, but the input itself can NEVER exceed 4 digits.
+  if (newPin.length !== 4) {
+    toast("PIN နံပါတ် ၄ လုံး ပြည့်အောင် ရိုက်ပါ");
+    return;
+  }
+
+  users[userIndex].pin = newPin;
+  saveUsers();
+  localStorage.setItem("atsx_current_user", JSON.stringify(users[userIndex]));
+  closeChangePinModal();
+  toast("PIN နံပါတ် ပြောင်းလဲပြီးပါပြီ");
+  updatePinDisplayUI(users[userIndex].pin);
+}
+
+function copyAccountID() {
+  const accountIDText = document.getElementById("accountID").innerText.trim();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(accountIDText).then(() => {
+      toast("Copied ID: " + accountIDText);
+    }).catch(err => {
+      prompt("Copy this ID manually:", accountIDText);
+    });
+  } else {
+    prompt("Copy this ID manually:", accountIDText);
+  }
+}
+
+function editAccountName() {
+  users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+
+  if (!session) return;
+
+  const userIndex = users.findIndex(u => u.phone === session.phone || u.id === session.id);
+  if (userIndex !== -1) {
+    const currentName = users[userIndex].name || "";
+
+    if (window.atsxOpenAccountNameModal) {
+      window.atsxOpenAccountNameModal(currentName, function(newName) {
+        if (newName && newName.trim() !== "" && newName !== "login.html") {
+          users[userIndex].name = newName.trim().slice(0,20);
+          saveUsers();
+          localStorage.setItem("atsx_current_user", JSON.stringify(users[userIndex]));
+          toast("အကောင့်နာမည် ပြောင်းလဲပြီးပါပြီ");
+          loadAccount();
+        }
+      });
+    }
+  }
+}
+
+function changeProfileImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const imageDataUrl = e.target.result;
+    document.getElementById("accountAvatar").src = imageDataUrl;
+
+    users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+    session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+
+    if (session) {
+      const userIndex = users.findIndex(u => u.phone === session.phone || u.id === session.id);
+      if (userIndex !== -1) {
+        users[userIndex].avatar = imageDataUrl;
+        saveUsers();
+        localStorage.setItem("atsx_current_user", JSON.stringify(users[userIndex]));
+        toast("Profile picture updated!");
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function changeBgImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const bgDataUrl = e.target.result;
+    document.getElementById("profileCard").style.backgroundImage = `url(${bgDataUrl})`;
+
+    users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+    session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+
+    if (session) {
+      const userIndex = users.findIndex(u => u.phone === session.phone || u.id === session.id);
+      if (userIndex !== -1) {
+        users[userIndex].bgImage = bgDataUrl;
+        saveUsers();
+        localStorage.setItem("atsx_current_user", JSON.stringify(users[userIndex]));
+        toast("Cover image updated!");
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function logout() {
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem("atsx_current_user");
+  showPage("login");
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (session) {
+    loadAccount();
+  } else {
+    showPage("register");
+  }
+});
+</script>
+
+<script>
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeChangePinModal(); });
+document.addEventListener('click', function(e){
+  const m=document.getElementById('changePinModal');
+  if(m && e.target===m) closeChangePinModal();
+});
+</script>
+
+
+<style id="atsx-account-modal-style">
+#atsxAccountNameModal{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(3,1,12,.72);backdrop-filter:blur(5px);
+  z-index:100000;padding:20px;
+}
+.atsx-account-modal-card{
+  width:min(92vw,410px);background:linear-gradient(145deg,#211247,#0e0825);
+  border:1px solid #7040d4;border-radius:20px;padding:20px;
+  box-shadow:0 18px 55px rgba(0,0,0,.6),0 0 25px rgba(112,64,212,.18);
+}
+.atsx-account-modal-title{color:#fff;font-size:19px;font-weight:800;margin-bottom:6px}
+.atsx-account-modal-sub{color:#a99acb;font-size:12px;margin-bottom:14px}
+#atsxAccountNameField{
+  width:100%;box-sizing:border-box;background:#09051a;color:#fff;
+  border:1px solid #5e35b0;border-radius:13px;padding:13px 14px;
+  font-size:16px;outline:none;
+}
+#atsxAccountNameField:focus{
+  border-color:#a77cff;box-shadow:0 0 0 3px rgba(167,124,255,.14);
+}
+.atsx-account-modal-count{color:#9b80d0;text-align:right;font-size:11px;margin-top:5px}
+.atsx-account-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:15px}
+.atsx-account-modal-actions button{
+  border:0;border-radius:11px;padding:10px 17px;font-weight:800;
+}
+#atsxAccountNameCancel{background:#25144d;color:#d8caff}
+#atsxAccountNameSave{background:linear-gradient(90deg,#6934c7,#925df0);color:#fff}
+</style>
+
+<div id="atsxAccountNameModal">
+  <div class="atsx-account-modal-card">
+    <div class="atsx-account-modal-title">အကောင့်နာမည်အသစ် ရိုက်ထည့်ပါ</div>
+    <div class="atsx-account-modal-sub">အကောင့်နာမည်ကို ထည့်ပြီး Save ကိုနှိပ်ပါ</div>
+    <input id="atsxAccountNameField" type="text" maxlength="20"
+           autocomplete="off" spellcheck="false">
+    <div class="atsx-account-modal-count"><span id="atsxAccountNameCount">0</span>/20</div>
+    <div class="atsx-account-modal-actions">
+      <button id="atsxAccountNameCancel" type="button">CANCEL</button>
+      <button id="atsxAccountNameSave" type="button">SAVE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const modal=document.getElementById('atsxAccountNameModal');
+  const field=document.getElementById('atsxAccountNameField');
+  const count=document.getElementById('atsxAccountNameCount');
+  const cancel=document.getElementById('atsxAccountNameCancel');
+  const save=document.getElementById('atsxAccountNameSave');
+
+  window.atsxOpenAccountNameModal=function(current,onDone){
+    field.value=String(current||'').slice(0,20);
+    count.textContent=field.value.length;
+    modal.style.display='flex';
+    setTimeout(()=>{field.focus();field.select()},60);
+
+    function close(){modal.style.display='none';cleanup()}
+    function yes(){
+      const value=field.value.trim().slice(0,20);
+      if(!value){field.focus();return}
+      close();onDone(value);
+    }
+    function no(){close()}
+    function key(e){
+      if(e.key==='Enter'){e.preventDefault();yes()}
+      if(e.key==='Escape'){e.preventDefault();no()}
+    }
+    function input(){field.value=field.value.slice(0,20);count.textContent=field.value.length}
+    function cleanup(){
+      cancel.removeEventListener('click',no);
+      save.removeEventListener('click',yes);
+      field.removeEventListener('keydown',key);
+      field.removeEventListener('input',input);
+    }
+    cancel.addEventListener('click',no);
+    save.addEventListener('click',yes);
+    field.addEventListener('keydown',key);
+    field.addEventListener('input',input);
+  };
+})();
+</script>
+
+<script>
+// AtsX server sync: keeps Telegram-approved balance/status reflected on this device.
+(async function atsxServerSync(){
+  try {
+    const current = JSON.parse(localStorage.getItem('atsx_current_user') || 'null');
+    if (!current || !current.phone) return;
+    const r = await fetch('/api/user?phone=' + encodeURIComponent(current.phone), {cache:'no-store'});
+    const d = await r.json();
+    if (!r.ok || !d.ok || !d.user) return;
+    const serverUser = d.user;
+    let users = JSON.parse(localStorage.getItem('atsx_users') || '[]');
+    const idx = users.findIndex(u => String(u.phone) === String(serverUser.phone) || String(u.id) === String(serverUser.id));
+    if (idx >= 0) users[idx] = {...users[idx], ...serverUser}; else users.push(serverUser);
+    localStorage.setItem('atsx_users', JSON.stringify(users));
+    localStorage.setItem('atsx_current_user', JSON.stringify(serverUser));
+    window.dispatchEvent(new Event('storage'));
+    if (typeof loadWalletBalance === 'function') loadWalletBalance();
+    if (typeof loadAccount === 'function') loadAccount();
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>
